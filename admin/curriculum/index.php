@@ -81,49 +81,52 @@
 		</div>
 	</div>
 </div>
+
+
 <script>
-	$(document).ready(function(){
+    $(document).ready(function(){
         $('#create_new').click(function(){
-			uni_modal("Curriculum Details","curriculum/manage_curriculum.php")
-		})
+            uni_modal("Curriculum Details","curriculum/manage_curriculum.php")
+        })
         $('.edit_data').click(function(){
-			uni_modal("Curriculum Details","curriculum/manage_curriculum.php?id="+$(this).attr('data-id'))
-		})
-		$('.delete_data').click(function(){
-			var id = $(this).attr('data-id'); // Get the ID from data-id attribute
-			_conf("Are you sure to delete this Curriculum permanently?","delete_curriculum",[id])
-		})
-		$('.view_data').click(function(){
-			uni_modal("curriculum Details","curriculum/view_curriculum.php?id="+$(this).attr('data-id'))
-		})
-		$('.table td,.table th').addClass('py-1 px-2 align-middle')
-		$('.table').dataTable({
+            uni_modal("Curriculum Details","curriculum/manage_curriculum.php?id="+$(this).attr('data-id'))
+        })
+        $('.delete_data').click(function(){
+            var id = $(this).attr('data-id'); // Get the ID from data-id attribute
+            _conf("Are you sure to delete this Curriculum permanently?","delete_curriculum",[id])
+        })
+        $('.view_data').click(function(){
+            uni_modal("Curriculum Details","curriculum/view_curriculum.php?id="+$(this).attr('data-id'))
+        })
+        $('.table td,.table th').addClass('py-1 px-2 align-middle')
+        $('.table').dataTable({
             columnDefs: [
                 { orderable: false, targets: 5 }
             ],
         });
-	})
-	function delete_curriculum($id){
-		start_loader();
-		$.ajax({
-			url:_base_url_ + "classes/Master.php?f=delete_curriculum",
-			method:"POST",
-			data:{ id: id },
-			dataType:"json",
-			error: function(err){
-            console.log(err);
-            alert_toast("An error occurred.", 'error');
-            end_loader();
-        },
-		success: function(resp){
-            if(resp.status == 'success'){
-                alert_toast("Curriculum deleted successfully.", 'success');
-                location.reload(); // Reload the page after deletion
-            } else {
-                alert_toast("Failed to delete Curriculum.", 'error');
+    })
+
+    function delete_curriculum(id){
+        start_loader();
+        $.ajax({
+            url: _base_url_ + "classes/Master.php?f=delete_curriculum",
+            method: "POST",
+            data: { id: id },
+            dataType: "json",
+            error: function(err){
+                console.log(err);
+                alert_toast("An error occurred.", 'error');
                 end_loader();
+            },
+            success: function(resp){
+                if(resp.status == 'success'){
+                    alert_toast("Curriculum deleted successfully.", 'success');
+                    location.reload(); // Reload the page after deletion
+                } else {
+                    alert_toast("Failed to delete Curriculum: " + (resp.error || 'Unknown error'), 'error');
+                    end_loader();
+                }
             }
-        }
-		});
-	}
+        });
+    }
 </script>

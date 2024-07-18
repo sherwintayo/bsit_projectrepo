@@ -166,13 +166,13 @@ Class Master extends DBConnection {
 	function delete_curriculum(){
 		extract($_POST);
 		
-		// Fetch program details for logging
+		// Fetch curriculum details for logging
 		$get_curriculum = $this->conn->query("SELECT * FROM `curriculum_list` WHERE id = '{$id}'");
 		if($get_curriculum->num_rows > 0){
 			$curriculum = $get_curriculum->fetch_assoc();
 			$curriculum_name = $curriculum['name']; // Assuming 'name' is the field you want to log
 		} else {
-			// Handle case where program with $id doesn't exist
+			// Handle case where curriculum with $id doesn't exist
 			$resp['status'] = 'failed';
 			$resp['error'] = 'Curriculum not found';
 			return json_encode($resp);
@@ -194,7 +194,6 @@ Class Master extends DBConnection {
 		}
 		return json_encode($resp);
 	}
-	
 
 	// function delete_curriculum(){
 	// 	extract($_POST);
