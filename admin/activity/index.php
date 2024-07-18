@@ -69,7 +69,7 @@
 		</div>
 	</div>
 </div>
-<script>
+<!-- <script>
 	$(document).ready(function(){
         $('#create_new').click(function(){
 			uni_modal("Curriculum Details","curriculum/manage_curriculum.php")
@@ -112,4 +112,4 @@
 			}
 		})
 	}
-</script>
+</script> -->
