@@ -1,8 +1,20 @@
 {
+    "name": "ciervo/bsit_repo",
+    "description": "Storing capstone project",
+    "type": "project",
     "require-dev": {
         "phpunit/phpunit": "*"
     },
+    "authors": [
+        {
+          "name": "Sherwin Tayo",
+          "email": "sherwintayo08@gmail.com"
+        }
+      ],
     "autoload": {
         "classmap": ["classes"]
-    }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "license": "MIT"
 }
