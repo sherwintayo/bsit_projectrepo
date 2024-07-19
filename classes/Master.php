@@ -218,64 +218,7 @@ Class Master extends DBConnection {
 	}
 
 
-	function save_curriculum(){
-		extract($_POST);
-		$data = "";
-		foreach($_POST as $k =>$v){
-			if(!in_array($k,array('id'))){
-				if(!is_numeric($v))
-					$v = $this->conn->real_escape_string($v);
-				if(!empty($data)) $data .=",";
-				$data .= " `{$k}`='{$v}' ";
-			}
-		}
-		if(empty($id)){
-			$sql = "INSERT INTO `curriculum_list` set {$data} ";
-		}else{
-			$sql = "UPDATE `curriculum_list` set {$data} where id = '{$id}' ";
-		}
-		$check = $this->conn->query("SELECT * FROM `curriculum_list` where `name`='{$name}' and `program_id` = '{program_id}' ".($id > 0 ? " and id != '{$id}'" : ""))->num_rows;
-		if($check > 0){
-			$resp['status'] = 'failed';
-			$resp['msg'] = "Curriculum Name Already Exists.";
-		}else{
-			$save = $this->conn->query($sql);
-			if($save){
-				$rid = !empty($id) ? $id : $this->conn->insert_id;
-				$resp['status'] = 'success';
-				if(empty($id))
-					$resp['msg'] = "Curriculum details successfully added.";
-				else
-					$resp['msg'] = "Curriculum details has been updated successfully.";
-			}else{
-				$resp['status'] = 'failed';
-				$resp['msg'] = "An error occured.";
-				$resp['err'] = $this->conn->error."[{$sql}]";
-			}
-		}
-		if($resp['status'] =='success')
-		$this->settings->set_flashdata('success',$resp['msg']);
-		return json_encode($resp);
-	}
-
-
-	function delete_curriculum(){
-		extract($_POST);
-		$del = $this->conn->query("DELETE FROM `curriculum_list` where id = '{$id}'");
-		if($del){
-			$resp['status'] = 'success';
-			$this->settings->set_flashdata('success',"Curriculum has been deleted successfully.");
-		}else{
-			$resp['status'] = 'failed';
-			$resp['error'] = $this->conn->error;
-		}
-		return json_encode($resp);
-
-	}
 	function save_archive() {
-		var_dump($_POST); // Debugging line
-		var_dump($_FILES); // Debugging line
-	
 		if (empty($_POST['id'])) {
 			$pref = date("Ym");
 			$code = sprintf("%'.04d", 1);
@@ -376,47 +319,49 @@ Class Master extends DBConnection {
 					$this->conn->query("UPDATE archive_list SET document_path = CONCAT('{$fname}', '?v=', unix_timestamp(CURRENT_TIMESTAMP)) WHERE id = '{$aid}' ");
 				}
 			}
-			/*upload and zip folders*/
-			if (isset($_FILES['zipfiles'])) {
-				if (!empty($_FILES['zipfiles']['name'][0])) {
-					$zip = new ZipArchive();
-					$zip_name = base_app . "uploads/files/upload_" . $aid . ".zip";
-					$folder_path = "uploads/files/upload_" . $aid . ".zip";
-					// Create a zip target
-					if ($zip->open($zip_name, ZipArchive::CREATE) !== TRUE) {
-						$error .= "Sorry ZIP creation is not working currently.<br/>";
-					}
-	
-					$imageCount = count($_FILES['zipfiles']['name']);
-					for ($i = 0; $i < $imageCount; $i++) {
-						if ($_FILES['zipfiles']['tmp_name'][$i] == '') {
-							continue;
+			if (isset($_FILES['zipfiles']) && !empty($_FILES['zipfiles']['tmp_name'][0])) {
+				$zip = new ZipArchive();
+				$zip_fname = 'uploads/zip/archive-' . $aid . '.zip';
+				$dir_path = base_app . $zip_fname;
+				if ($zip->open($dir_path, ZipArchive::CREATE | ZipArchive::OVERWRITE)) {
+					foreach ($_FILES['zipfiles']['tmp_name'] as $key => $tmp_name) {
+						$type = mime_content_type($tmp_name);
+						$allowed = array('image/png', 'image/jpeg', 'application/pdf', 'text/plain');
+						if (in_array($type, $allowed)) {
+							$zip->addFile($tmp_name, $_FILES['zipfiles']['name'][$key]);
 						}
-						$newname = date('YmdHis', time()) . mt_rand() . '.jpg';
-	
-						// Moving files to zip.
-						$zip->addFromString($_FILES['zipfiles']['name'][$i], file_get_contents($_FILES['zipfiles']['tmp_name'][$i]));
-	
-						// moving files to the target folder.
-						$uploads = move_uploaded_file($_FILES['zipfiles']['tmp_name'][$i], './uploads/files/' . $newname);
 					}
 					$zip->close();
-					if (isset($uploads)) {
-						$this->conn->query("UPDATE archive_list SET folder_path = CONCAT('{$folder_path}', '?v=', unix_timestamp(CURRENT_TIMESTAMP)) WHERE id = '{$aid}' ");
-					}
-					// Create HTML Link option to download zip
-					//$success = basename($zip_name);
+					$this->conn->query("UPDATE archive_list SET zip_path = CONCAT('{$zip_fname}', '?v=', unix_timestamp(CURRENT_TIMESTAMP)) WHERE id = '{$aid}' ");
+				} else {
+					$resp['msg'] .= " But Zip file creation failed.";
+				}
+			}
+			if (isset($_FILES['sql']) && $_FILES['sql']['tmp_name'] != '') {
+				$fname = 'uploads/sql/archive-' . $aid . '.sql';
+				$dir_path = base_app . $fname;
+				$upload = $_FILES['sql']['tmp_name'];
+				$type = mime_content_type($upload);
+				$allowed = array('text/plain', 'application/xml', 'text/x-sql', 'application/sql', 'text/sql', 'application/octet-stream');
+				if (!in_array($type, $allowed)) {
+					$resp['msg'] .= " But SQL File has failed to upload due to invalid file type.";
+				} else {
+					$uploaded = move_uploaded_file($_FILES['sql']['tmp_name'], $dir_path);
+				}
+				if (isset($uploaded)) {
+					$this->conn->query("UPDATE archive_list SET sql_path = CONCAT('{$fname}', '?v=', unix_timestamp(CURRENT_TIMESTAMP)) WHERE id = '{$aid}' ");
 				}
 			}
 		} else {
 			$resp['status'] = 'failed';
-			$resp['msg'] = "An error occurred.";
-			$resp['error'] = $this->conn->error . "[{$sql}]";
+			$resp['msg'] = 'An error occurred while saving the archive.';
+			$resp['error'] = $this->conn->error;
+			if (empty($id))
+				$this->conn->query("DELETE FROM archive_list WHERE id = '{$aid}' ");
 		}
+	
 		return json_encode($resp);
 	}
-	
-	
 	
 
 	    //    DELETE ARCHIVE
