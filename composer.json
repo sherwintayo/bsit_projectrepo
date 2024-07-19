@@ -7,14 +7,17 @@
     "require-dev": {
       "phpunit/phpunit": "^9.0"
     },
+    
     "authors": [
-      {
+      { 
         "name": "Sherwin Tayo",
         "email": "sherwintayo08@gmail.com"
       }
     ],
-    "minimum-stability": "stable",
+    
+    "minimum-stability": "dev",
     "type": "library",
     "license": "MIT"
+    
   }
   
