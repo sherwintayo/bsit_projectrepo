@@ -41,9 +41,9 @@
                  
                      
                         $servername = "localhost";
-                        $username = "root";
-                        $password = "";
-                        $database = "bsit_projectrepo_db";
+                        $username = "u510162695_bsit_repo";
+                        $password = "1Bsit_repo";
+                        $database = "u510162695_bsit_repo";
                         $connection = new mysqli($servername, $username, $password, $database);
 
                         if ($connection->connect_error) {
