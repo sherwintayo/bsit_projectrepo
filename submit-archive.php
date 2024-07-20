@@ -73,7 +73,7 @@ if(isset($_GET['id']) && $_GET['id'] > 0){
                         <div class="col-lg-12">
                             <div class="form-group">
                                 <label for="img" class="control-label text-muted">Project Image/Banner Image</label>
-                                <input type="file" id="img" name="img" class="form-control form-control-border" accept="image/png,image/jpeg" onchange="displayImg(this,$(this))" <?= !isset($id) ? "required" : "" ?>>
+                                <input type="file" id="img" name="img" class="form-control form-control-border" accept="image/png,image/jpeg, image/jpg" onchange="displayImg(this,$(this))" <?= !isset($id) ? "required" : "" ?>>
                             </div>
 
                             <div class="form-group text-center">
@@ -92,9 +92,8 @@ if(isset($_GET['id']) && $_GET['id'] > 0){
 					<div class="row">
                         <div class="col-lg-12">
                             <div class="form-group">
-                                <label for="pdf" class="control-label text-muted">Create Zip of Multiples Uploded Files</label>
+                                <label for="pdf" class="control-label text-muted">Create Zip of Multiple Uploaded Files</label>
                                 <input type="file" id="zipfiles" name="zipfiles[]" class="form-control form-control-border" multiple >
-								
                             </div>
                         </div>
                     </div>
@@ -126,9 +125,8 @@ if(isset($_GET['id']) && $_GET['id'] > 0){
 	        reader.onload = function (e) {
 	        	$('#cimg').attr('src', e.target.result);
 	        }
-
 	        reader.readAsDataURL(input.files[0]);
-	    }else{
+	    } else {
             $('#cimg').attr('src', "<?= validate_image(isset($avatar) ? $avatar : "") ?>");
         }
 	}
@@ -151,12 +149,13 @@ if(isset($_GET['id']) && $_GET['id'] > 0){
             height: 200,
             toolbar: [
                 [ 'font', [ 'bold', 'italic', 'clear'] ],
-                [ 'fontname', [ 'fontname' ] ]
+                [ 'fontname', [ 'fontname' ] ],
                 [ 'color', [ 'color' ] ],
                 [ 'para', [ 'ol', 'ul' ] ],
                 [ 'view', [ 'undo', 'redo', 'help' ] ]
             ]
         })
+
         // Archive Form Submit
         $('#archive-form').submit(function(e){
             e.preventDefault()
@@ -177,8 +176,8 @@ if(isset($_GET['id']) && $_GET['id'] > 0){
                 dataType:'json',
                 error:err=>{
                     console.log(err)
-                //     el.text("An error occured while saving    the data")
-                //    el.addClass("alert-danger")
+                    el.text("An error occurred while saving the data")
+                    el.addClass("alert-danger")
                     _this.prepend(el)
                     el.show('slow')
                     end_loader()
@@ -192,7 +191,7 @@ if(isset($_GET['id']) && $_GET['id'] > 0){
                         _this.prepend(el)
                         el.show('show')
                     }else{
-                        el.text("An error occured while saving the data")
+                        el.text("An error occurred while saving the data")
                         el.addClass("alert-danger")
                         _this.prepend(el)
                         el.show('show')
