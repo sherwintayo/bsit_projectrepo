@@ -12,7 +12,7 @@
         }
       ],
     "autoload": {
-        "classmap": ["classes"]
+        "classmap": ["classes", "plugins"]
     },
     "minimum-stability": "stable",
     "prefer-stable": true,
