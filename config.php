@@ -5,8 +5,8 @@ date_default_timezone_set('Asia/Manila');
 session_start();
 
 require_once('initialize.php');
-// require_once('classes/DBConnection.php');
-// require_once('classes/SystemSettings.php');
+require_once('classes/DBConnection.php');
+require_once('classes/SystemSettings.php');
 require_once('vendor/autoload.php');
 $db = new DBConnection;
 $conn = $db->conn;
