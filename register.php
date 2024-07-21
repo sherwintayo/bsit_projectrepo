@@ -137,14 +137,14 @@ include('config.php') ?>
                         <div class="row">
                             <div class="col-lg-12">
                                 <div class="form-group">
-                                    <input type="password" name="password" id="password" placeholder="Password" class="form-control form-control-border" required>
+                                    <input type="password" name="password" id="password" placeholder="Password" class="form-control form-control-border"  minlength="8" required>
                                 </div>
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-lg-12">
                                 <div class="form-group">
-                                    <input type="password" id="cpassword" placeholder="Confirm Password" class="form-control form-control-border" required>
+                                    <input type="password" id="cpassword" placeholder="Confirm Password" class="form-control form-control-border"  minlength="8" required>
                                 </div>
                             </div>
                         </div>
