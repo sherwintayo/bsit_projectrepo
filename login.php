@@ -82,6 +82,16 @@
                                 </div>
                             </div>
                         </div>
+                        <!-- Add this link below the login button in your login.php -->
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="form-group text-right">
+                                    <button class="btn btn-default bg-black btn-flat"> Login</button>
+                                    <a href="forgot_password.php" class="btn btn-link">Forgot Password?</a>
+                                </div>
+                            </div>
+                        </div>
+
                     </form>
                 </div>
             </div>
