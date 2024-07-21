@@ -1,4 +1,8 @@
-<?php require_once('./config.php') ?>
+<?php require_once('./config.php') 
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+?>
 <!DOCTYPE html>
 <html lang="en" class="" style="height: auto;">
 <?php require_once('inc/header.php') ?>
@@ -39,7 +43,7 @@
 <script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script src="dist/js/adminlte.min.js"></script>
 <script>
-  $(document).ready(function(){
+ $(document).ready(function(){
     end_loader();
     $('#forgot-password-form').submit(function(e){
         e.preventDefault();
@@ -53,7 +57,7 @@
             method: 'POST',
             data: _this.serialize(),
             dataType: 'json',
-            error: err => {
+            error: function(err) {
                 console.log(err);
                 el.html("An error occurred while processing your request: " + err.responseText);
                 el.addClass("alert-danger");
@@ -79,9 +83,10 @@
                 end_loader();
                 $('html, body').animate({scrollTop: 0}, 'fast');
             }
-        })
-    })
-})
+        });
+    });
+});
+
 </script>
 </body>
 </html>
