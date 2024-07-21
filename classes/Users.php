@@ -248,58 +248,60 @@ Class Users extends DBConnection {
 	}
 
 	public function forgot_password() {
-        extract($_POST);
+		extract($_POST);
+		if (empty($email)) {
+			return json_encode(['status' => 'error', 'msg' => 'Email address is required']);
+		}
+	
+		$qry = $this->conn->query("SELECT * FROM `student_list` WHERE email = '{$email}'");
+		if ($qry->num_rows > 0) {
+			$token = bin2hex(random_bytes(16));
+			$expires_at = time() + 3600; // 1 hour expiry
+			$this->conn->query("INSERT INTO `password_resets` (email, token, expires_at) VALUES ('{$email}', '{$token}', '{$expires_at}')");
+	
+			// Send reset email
+			$reset_link = "http://localhost/bsit_projectrepo/reset_password.php?token={$token}";
+		//	$reset_link = "http://yourdomain.com/reset_password.php?token={$token}";
+			$subject = "Password Reset Request";
+			$message = "Click the following link to reset your password: {$reset_link}";
+			$headers = "From: no-reply@yourdomain.com";
+	
+			if (mail($email, $subject, $message, $headers)) {
+				return json_encode(['status' => 'success']);
+			} else {
+				return json_encode(['status' => 'error', 'msg' => 'Failed to send reset email']);
+			}
+		} else {
+			return json_encode(['status' => 'error', 'msg' => 'No account found with that email address']);
+		}
+	}
+	
+	
 
-        $qry = $this->conn->query("SELECT * FROM `users` WHERE username = '{$username}'");
-        if ($qry->num_rows > 0) {
-            $user = $qry->fetch_assoc();
-            $token = bin2hex(random_bytes(50));
-            $expires = date("U") + 1800; // 30 minutes
 
-            $this->conn->query("DELETE FROM `password_resets` WHERE email = '{$user['username']}'");
-            $this->conn->query("INSERT INTO `password_resets` (`email`, `token`, `expires_at`) VALUES ('{$user['username']}', '{$token}', '{$expires}')");
-
-            $url = base_url . "reset_password.php?token=" . $token;
-
-            $subject = "Password Reset Request";
-            $message = "We received a password reset request. The link to reset your password is below. ";
-            $message .= "If you did not make this request, you can ignore this email.\n\n";
-            $message .= "Here is your password reset link:\n";
-            $message .= "<a href='$url'>$url</a>";
-            $headers = "From: noreply@" . $_SERVER['HTTP_HOST'] . "\r\n";
-            $headers .= "Content-type: text/html\r\n";
-
-            mail($user['username'], $subject, $message, $headers);
-
-            return json_encode(['status' => 'success']);
-        } else {
-            return json_encode(['status' => 'error', 'msg' => 'No account found with that email']);
-        }
-    }
-
-
-	   public function reset_password() {
-        extract($_POST);
-
-        $qry = $this->conn->query("SELECT * FROM `password_resets` WHERE token = '{$token}'");
-        if ($qry->num_rows > 0) {
-            $reset = $qry->fetch_assoc();
-            $username = $reset['email'];
-            $expires = $reset['expires_at'];
-
-            if (date("U") > $expires) {
-                return json_encode(['status' => 'error', 'msg' => 'The reset link has expired']);
-            }
-
-            $password = password_hash($password, PASSWORD_DEFAULT);
-            $this->conn->query("UPDATE `users` SET password = '{$password}' WHERE username = '{$username}'");
-            $this->conn->query("DELETE FROM `password_resets` WHERE email = '{$username}'");
-
-            return json_encode(['status' => 'success']);
-        } else {
-            return json_encode(['status' => 'error', 'msg' => 'Invalid reset token']);
-        }
-    }
+	public function reset_password() {
+		extract($_POST);
+	
+		$qry = $this->conn->query("SELECT * FROM `password_resets` WHERE token = '{$token}'");
+		if ($qry->num_rows > 0) {
+			$reset = $qry->fetch_assoc();
+			$email = $reset['email'];
+			$expires = $reset['expires_at'];
+	
+			if (time() > $expires) {
+				return json_encode(['status' => 'error', 'msg' => 'The reset link has expired']);
+			}
+	
+			$password = md5($password);
+			$this->conn->query("UPDATE `student_list` SET password = '{$password}' WHERE email = '{$email}'");
+			$this->conn->query("DELETE FROM `password_resets` WHERE email = '{$email}'");
+	
+			return json_encode(['status' => 'success']);
+		} else {
+			return json_encode(['status' => 'error', 'msg' => 'Invalid reset token']);
+		}
+	}
+	
 	
 }
 
@@ -321,6 +323,9 @@ switch ($action) {
 	case 'verify_student':
 		echo $users->verify_student();
 	break;
+	case 'forgot_password':
+        echo $users->forgot_password();
+        break;
 	default:
 		// echo $sysset->index();
 		break;

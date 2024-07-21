@@ -24,15 +24,12 @@
             </div>
             <div class="card-body">
                 <form action="" id="reset-password-form">
-                    <input type="hidden" name="token" value="<?= $_GET['token'] ?>">
+                    <input type="hidden" name="token" value="<?php echo $_GET['token']; ?>">
                     <div class="form-group">
                         <input type="password" name="password" id="password" placeholder="New Password" class="form-control form-control-border" required>
                     </div>
-                    <div class="form-group">
-                        <input type="password" id="cpassword" placeholder="Confirm Password" class="form-control form-control-border" required>
-                    </div>
                     <div class="form-group text-right">
-                        <button class="btn btn-default bg-black btn-flat">Reset Password</button>
+                        <button class="btn btn-default bg-black btn-flat">Submit</button>
                     </div>
                 </form>
             </div>
@@ -43,58 +40,50 @@
 <script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script src="dist/js/adminlte.min.js"></script>
 <script>
-    $(document).ready(function(){
-        end_loader();
-        $('#reset-password-form').submit(function(e){
-            e.preventDefault();
-            var _this = $(this);
-            $(".pop-msg").remove();
-            var el = $("<div>").addClass("alert pop-msg my-2").hide();
-            if($("#password").val() != $("#cpassword").val()){
-                el.addClass("alert-danger")
-                el.text("Password does not match.")
-                $('#password, #cpassword').addClass("is-invalid")
-                $('#cpassword').after(el)
-                el.show('slow')
-                return false;
-            }
-            start_loader();
-            $.ajax({
-                url: "classes/Users.php?f=reset_password",
-                method: 'POST',
-                data: _this.serialize(),
-                dataType: 'json',
-                error: err => {
-                    console.log(err);
+  $(document).ready(function(){
+    end_loader();
+    $('#reset-password-form').submit(function(e){
+        e.preventDefault();
+        var _this = $(this);
+        $(".pop-msg").remove();
+        var el = $("<div>").addClass("alert pop-msg my-2").hide();
+        start_loader();
+        $.ajax({
+            url: "classes/Users.php?f=reset_password",
+            method: 'POST',
+            data: _this.serialize(),
+            dataType: 'json',
+            error: err => {
+                console.log(err);
+                el.html("An error occurred while processing your request: " + err.responseText);
+                el.addClass("alert-danger");
+                _this.prepend(el);
+                el.show('slow');
+                end_loader();
+            },
+            success: function(resp) {
+                if (resp.status == 'success') {
+                    alert_toast("Password has been reset successfully.", 'success');
+                    setTimeout(() => {
+                        location.href = 'login.php';
+                    }, 2000);
+                } else if (resp.msg) {
+                    el.text(resp.msg);
+                    el.addClass("alert-danger");
+                    _this.prepend(el);
+                    el.show('show');
+                } else {
                     el.text("An error occurred while processing your request");
                     el.addClass("alert-danger");
                     _this.prepend(el);
-                    el.show('slow');
-                    end_loader();
-                },
-                success: function(resp) {
-                    if (resp.status == 'success') {
-                        alert_toast("Password has been reset successfully.", 'success');
-                        setTimeout(function() {
-                            location.href = "login.php";
-                        }, 2000);
-                    } else if (resp.msg) {
-                        el.text(resp.msg);
-                        el.addClass("alert-danger");
-                        _this.prepend(el);
-                        el.show('show');
-                    } else {
-                        el.text("An error occurred while processing your request");
-                        el.addClass("alert-danger");
-                        _this.prepend(el);
-                        el.show('show');
-                    }
-                    end_loader();
-                    $('html, body').animate({scrollTop: 0}, 'fast');
+                    el.show('show');
                 }
-            })
+                end_loader();
+                $('html, body').animate({scrollTop: 0}, 'fast');
+            }
         })
     })
+})
 </script>
 </body>
 </html>

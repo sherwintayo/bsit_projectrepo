@@ -39,48 +39,51 @@
 <script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script src="dist/js/adminlte.min.js"></script>
 <script>
-    $(document).ready(function(){
-        end_loader();
-        $('#forgot-password-form').submit(function(e){
-            e.preventDefault();
-            var _this = $(this);
-            $(".pop-msg").remove();
-            var el = $("<div>").addClass("alert pop-msg my-2").hide();
-            start_loader();
-            $.ajax({
-                url: "classes/Users.php?f=forgot_password",
-                method: 'POST',
-                data: _this.serialize(),
-                dataType: 'json',
-                error: err => {
-                    console.log(err);
+  $(document).ready(function(){
+    end_loader();
+    $('#forgot-password-form').submit(function(e){
+        e.preventDefault();
+        console.log($('#email').val()); 
+        var _this = $(this);
+        $(".pop-msg").remove();
+        var el = $("<div>").addClass("alert pop-msg my-2").hide();
+        start_loader();
+        $.ajax({
+            url: "classes/Users.php?f=forgot_password",
+            method: 'POST',
+            data: _this.serialize(),
+            dataType: 'json',
+            error: err => {
+                console.log(err);
+                el.html("An error occurred while processing your request: " + err.responseText);
+                el.addClass("alert-danger");
+                _this.prepend(el);
+                el.show('slow');
+                end_loader();
+            },
+            success: function(resp) {
+                if (resp.status == 'success') {
+                    alert_toast("Password reset email has been sent.", 'success');
+                    setTimeout(() => {
+                        location.href = 'login.php';
+                    }, 2000);
+                } else if (resp.msg) {
+                    el.text(resp.msg);
+                    el.addClass("alert-danger");
+                    _this.prepend(el);
+                    el.show('show');
+                } else {
                     el.text("An error occurred while processing your request");
                     el.addClass("alert-danger");
                     _this.prepend(el);
-                    el.show('slow');
-                    end_loader();
-                },
-                success: function(resp) {
-                    if (resp.status == 'success') {
-                        alert_toast("Password reset link sent to your email.", 'success');
-                        _this[0].reset();
-                    } else if (resp.msg) {
-                        el.text(resp.msg);
-                        el.addClass("alert-danger");
-                        _this.prepend(el);
-                        el.show('show');
-                    } else {
-                        el.text("An error occurred while processing your request");
-                        el.addClass("alert-danger");
-                        _this.prepend(el);
-                        el.show('show');
-                    }
-                    end_loader();
-                    $('html, body').animate({scrollTop: 0}, 'fast');
+                    el.show('show');
                 }
-            })
+                end_loader();
+                $('html, body').animate({scrollTop: 0}, 'fast');
+            }
         })
     })
+})
 </script>
 </body>
 </html>
