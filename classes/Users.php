@@ -253,39 +253,30 @@ Class Users extends DBConnection {
 	}
 
 	public function forgot_password() {
-		// Enable error reporting
 		ini_set('display_errors', 1);
 		ini_set('display_startup_errors', 1);
 		error_reporting(E_ALL);
 	
 		try {
-			// Extract email from the POST data
 			$email = isset($_POST['email']) ? $_POST['email'] : '';
 	
-			// Check if the email is not empty
 			if (empty($email)) {
 				return json_encode(['status' => 'error', 'msg' => 'Email address is required']);
 			}
 	
-			// Check if the email exists in the database
 			$qry = $this->conn->query("SELECT * FROM `student_list` WHERE email = '{$email}'");
 			if ($qry->num_rows > 0) {
 				$user = $qry->fetch_assoc();
 				$token = bin2hex(random_bytes(50));
-				$expires = date("U") + 1800; // 30 minutes
+				$expires = date("U") + 1800;
 	
-				// Delete any existing reset requests for this email
 				$this->conn->query("DELETE FROM `password_resets` WHERE email = '{$email}'");
-				// Insert the new reset request
 				$this->conn->query("INSERT INTO `password_resets` (`email`, `token`, `expires_at`) VALUES ('{$email}', '{$token}', '{$expires}')");
 	
-				// Create the reset URL
 				$url = base_url . "reset_password.php?token=" . $token;
 	
-				// Send the email using PHPMailer
 				$mail = new PHPMailer(true);
 				try {
-					//Server settings
 					$mail->isSMTP();
 					$mail->Host = 'smtp.gmail.com';
 					$mail->SMTPAuth = true;
@@ -294,11 +285,9 @@ Class Users extends DBConnection {
 					$mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
 					$mail->Port = 587;
 	
-					//Recipients
 					$mail->setFrom('your-email@gmail.com', 'Mailer');
 					$mail->addAddress($email);
 	
-					// Content
 					$mail->isHTML(true);
 					$mail->Subject = 'Password Reset Request';
 					$mail->Body = "We received a password reset request. The link to reset your password is below. If you did not make this request, you can ignore this email.<br><br>Here is your password reset link:<br><a href='$url'>$url</a>";
@@ -317,6 +306,7 @@ Class Users extends DBConnection {
 			return json_encode(['status' => 'error', 'msg' => $e->getMessage()]);
 		}
 	}
+	
 	
 	
 

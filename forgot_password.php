@@ -64,6 +64,7 @@
                 end_loader();
             },
             success: function(resp) {
+                console.log(resp); // Log the response for debugging
                 if (resp.status == 'success') {
                     alert_toast("Password reset link sent to your email.", 'success');
                     _this[0].reset();
