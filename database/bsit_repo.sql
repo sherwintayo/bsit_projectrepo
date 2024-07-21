@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 19, 2024 at 10:28 AM
+-- Generation Time: Jul 21, 2024 at 08:17 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -141,7 +141,9 @@ INSERT INTO `archive_counter` (`id`, `archive_id`, `created_at`) VALUES
 (0, 85, '2024-07-19 07:49:29'),
 (0, 84, '2024-07-19 07:49:32'),
 (0, 83, '2024-07-19 07:49:56'),
-(0, 88, '2024-07-19 08:21:39');
+(0, 88, '2024-07-19 08:21:39'),
+(0, 88, '2024-07-19 15:15:10'),
+(0, 89, '2024-07-21 03:51:51');
 
 -- --------------------------------------------------------
 
@@ -189,7 +191,7 @@ INSERT INTO `archive_list` (`id`, `archive_code`, `curriculum_id`, `year`, `titl
 (52, '2023080016', 7, '2023', 'Database Design system', '&lt;p&gt;Testing&lt;/p&gt;', '&lt;p&gt;rhej&lt;/p&gt;&lt;p&gt;hsis&lt;/p&gt;&lt;p&gt;gu&lt;/p&gt;', 'uploads/banners/archive-52.png?v=1691337122', 'uploads/pdf/archive-52.pdf?v=1691337123', 'uploads/files/upload_52.zip?v=1691337124', 'uploads/sql/sql52.sql?v=1691337123', 1, 13, '2023-08-06 23:52:01', NULL),
 (80, '2024070003', 7, '2024', 'House Rental Management System', '&lt;p&gt;ajncljan scbkjab swknc akbckahs&lt;/p&gt;', '&lt;p&gt;1. kjascm asbjk&lt;/p&gt;&lt;p&gt;2. klasnc. d,cne&lt;/p&gt;&lt;p&gt;3. kjaskcbakjek&lt;/p&gt;', '', '', NULL, NULL, 1, 13, '2024-07-16 22:44:58', NULL),
 (83, '2024070001', 7, '2024', 'BSIT Repository', '&lt;p&gt;acajbckjashjdcacs oasshcoahsdlvcajv olabsla olajn jsabdcg oajxbcaljsduc&lt;/p&gt;', '&lt;p&gt;AJSNCLABCLLD&lt;/p&gt;&lt;p&gt;oacnlajbdo&lt;/p&gt;&lt;p&gt;baojsablsjc&lt;/p&gt;', '', '', NULL, NULL, 1, 41, '2024-07-17 21:41:26', NULL),
-(88, '2024070002', 7, '2024', 'House Rental Management System', '&lt;p&gt;svdsdcasdc&lt;/p&gt;', '&lt;p&gt;asdcac&lt;/p&gt;&lt;p&gt;sdvsvdc&lt;/p&gt;&lt;p&gt;sadgfsfbf&lt;/p&gt;', '', '', NULL, NULL, 0, 41, '2024-07-19 16:21:11', NULL);
+(89, '2024070002', 7, '2024', 'Pizza Store Management', '&lt;p&gt;ahbkscbvkae&lt;/p&gt;', '&lt;p&gt;kskdbcksdbck&lt;/p&gt;', '', '', NULL, NULL, 0, 41, '2024-07-21 11:51:35', NULL);
 
 -- --------------------------------------------------------
 
@@ -249,6 +251,19 @@ INSERT INTO `keyword_search_counter` (`id`, `keyword`, `created_at`) VALUES
 (0, 'wood', '2023-08-01 10:56:00'),
 (0, 'system in', '2023-08-02 10:23:22'),
 (0, 'system in', '2023-08-02 10:23:48');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `password_resets`
+--
+
+CREATE TABLE `password_resets` (
+  `id` int(11) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `token` varchar(255) NOT NULL,
+  `expires_at` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -413,6 +428,12 @@ ALTER TABLE `curriculum_list`
   ADD KEY `program_id` (`program_id`);
 
 --
+-- Indexes for table `password_resets`
+--
+ALTER TABLE `password_resets`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `program_list`
 --
 ALTER TABLE `program_list`
@@ -453,13 +474,19 @@ ALTER TABLE `activity_log`
 -- AUTO_INCREMENT for table `archive_list`
 --
 ALTER TABLE `archive_list`
-  MODIFY `id` int(30) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=89;
+  MODIFY `id` int(30) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=90;
 
 --
 -- AUTO_INCREMENT for table `curriculum_list`
 --
 ALTER TABLE `curriculum_list`
   MODIFY `id` int(30) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+
+--
+-- AUTO_INCREMENT for table `password_resets`
+--
+ALTER TABLE `password_resets`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `program_list`
