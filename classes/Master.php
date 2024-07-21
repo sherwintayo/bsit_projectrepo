@@ -28,15 +28,15 @@ Class Master extends DBConnection {
 				if(!is_numeric($v))
 					$v = $this->conn->real_escape_string($v);
 				if(!empty($data)) $data .=",";
-				$data .= " `{$k}`='{$v}' ";
+				$data .= " {$k}='{$v}' ";
 			}
 		}
 		if(empty($id)){
-			$sql = "INSERT INTO `program_list` SET {$data} ";
+			$sql = "INSERT INTO program_list SET {$data} ";
 		}else{
-			$sql = "UPDATE `program_list` SET {$data} WHERE id = '{$id}' ";
+			$sql = "UPDATE program_list SET {$data} WHERE id = '{$id}' ";
 		}
-		$check = $this->conn->query("SELECT * FROM `program_list` WHERE `name`='{$name}' ".($id > 0 ? " AND id != '{$id}'" : ""))->num_rows;
+		$check = $this->conn->query("SELECT * FROM program_list WHERE name='{$name}' ".($id > 0 ? " AND id != '{$id}'" : ""))->num_rows;
 		if($check > 0){
 			$resp['status'] = 'failed';
 			$resp['msg'] = "Program Name Already Exists.";
@@ -68,7 +68,7 @@ Class Master extends DBConnection {
 		extract($_POST);
 		
 		// Fetch program details for logging
-		$get_program = $this->conn->query("SELECT * FROM `program_list` WHERE id = '{$id}'");
+		$get_program = $this->conn->query("SELECT * FROM program_list WHERE id = '{$id}'");
 		if($get_program->num_rows > 0){
 			$program = $get_program->fetch_assoc();
 			$program_name = $program['name']; // Assuming 'name' is the field you want to log
@@ -80,7 +80,7 @@ Class Master extends DBConnection {
 		}
 		
 		// Perform deletion
-		$del = $this->conn->query("DELETE FROM `program_list` WHERE id = '{$id}'");
+		$del = $this->conn->query("DELETE FROM program_list WHERE id = '{$id}'");
 		if($del){
 			$resp['status'] = 'success';
 			$resp['msg'] = "Program '{$program_name}' has been deleted successfully.";
@@ -98,7 +98,7 @@ Class Master extends DBConnection {
 	
 	// function delete_program(){
 	// 	extract($_POST);
-	// 	$del = $this->conn->query("DELETE FROM `program_list` where id = '{$id}'");
+	// 	$del = $this->conn->query("DELETE FROM program_list where id = '{$id}'");
 	// 	if($del){
 	// 		$resp['status'] = 'success';
 	// 		$this->settings->set_flashdata('success',"Program has been deleted successfully.");
@@ -115,7 +115,7 @@ Class Master extends DBConnection {
 		$username = $this->settings->userdata('username');
 		$date = date('Y-m-d H:i:s');
 		$action = $this->conn->real_escape_string($action);
-		$sql = "INSERT INTO `activity_log` (`username`, `date`, `action`) VALUES ('$username', '$date', '$action')";
+		$sql = "INSERT INTO activity_log (username, date, action) VALUES ('$username', '$date', '$action')";
 		$this->conn->query($sql); // Assuming $this->conn is your database connection
 	}
 	
@@ -128,15 +128,15 @@ Class Master extends DBConnection {
 				if(!is_numeric($v))
 					$v = $this->conn->real_escape_string($v);
 				if(!empty($data)) $data .=",";
-				$data .= " `{$k}`='{$v}' ";
+				$data .= " {$k}='{$v}' ";
 			}
 		}
 		if(empty($id)){
-			$sql = "INSERT INTO `curriculum_list` set {$data} ";
+			$sql = "INSERT INTO curriculum_list set {$data} ";
 		}else{
-			$sql = "UPDATE `curriculum_list` set {$data} where id = '{$id}' ";
+			$sql = "UPDATE curriculum_list set {$data} where id = '{$id}' ";
 		}
-		$check = $this->conn->query("SELECT * FROM `curriculum_list` where `name`='{$name}' and `program_id` = '{program_id}' ".($id > 0 ? " and id != '{$id}'" : ""))->num_rows;
+		$check = $this->conn->query("SELECT * FROM curriculum_list where name='{$name}' and program_id = '{program_id}' ".($id > 0 ? " and id != '{$id}'" : ""))->num_rows;
 		if($check > 0){
 			$resp['status'] = 'failed';
 			$resp['msg'] = "Curriculum Name Already Exists.";
@@ -167,7 +167,7 @@ Class Master extends DBConnection {
 		extract($_POST);
 		
 		// Fetch curriculum details for logging
-		$get_curriculum = $this->conn->query("SELECT * FROM `curriculum_list` WHERE id = '{$id}'");
+		$get_curriculum = $this->conn->query("SELECT * FROM curriculum_list WHERE id = '{$id}'");
 		if($get_curriculum->num_rows > 0){
 			$curriculum = $get_curriculum->fetch_assoc();
 			$curriculum_name = $curriculum['name']; // Assuming 'name' is the field you want to log
@@ -179,7 +179,7 @@ Class Master extends DBConnection {
 		}
 		
 		// Perform deletion
-		$del = $this->conn->query("DELETE FROM `curriculum_list` WHERE id = '{$id}'");
+		$del = $this->conn->query("DELETE FROM curriculum_list WHERE id = '{$id}'");
 		if($del){
 			$resp['status'] = 'success';
 			$resp['msg'] = "Curriculum '{$curriculum_name}' has been deleted successfully.";
@@ -197,7 +197,7 @@ Class Master extends DBConnection {
 
 	// function delete_curriculum(){
 	// 	extract($_POST);
-	// 	$del = $this->conn->query("DELETE FROM `curriculum_list` where id = '{$id}'");
+	// 	$del = $this->conn->query("DELETE FROM curriculum_list where id = '{$id}'");
 	// 	if($del){
 	// 		$resp['status'] = 'success';
 	// 		$this->settings->set_flashdata('success',"Curriculum has been deleted successfully.");
@@ -213,7 +213,7 @@ Class Master extends DBConnection {
 		$username = $this->settings->userdata('username');
 		$date = date('Y-m-d H:i:s');
 		$action = $this->conn->real_escape_string($action);
-		$sql = "INSERT INTO `activity_log` (`username`, `date`, `action`) VALUES ('$username', '$date', '$action')";
+		$sql = "INSERT INTO activity_log (username, date, action) VALUES ('$username', '$date', '$action')";
 		$this->conn->query($sql); // Assuming $this->conn is your database connection
 	}
 
@@ -373,8 +373,8 @@ Class Master extends DBConnection {
 	    //    DELETE ARCHIVE
 	function delete_archive(){
 		extract($_POST);
-		$get = $this->conn->query("SELECT * FROM `archive_list` where id = '{$id}'");
-		$del = $this->conn->query("DELETE FROM `archive_list` where id = '{$id}'");
+		$get = $this->conn->query("SELECT * FROM archive_list where id = '{$id}'");
+		$del = $this->conn->query("DELETE FROM archive_list where id = '{$id}'");
 		if($del){
 			$resp['status'] = 'success';
 			$this->settings->set_flashdata('success',"archive Records has deleted successfully.");
@@ -396,7 +396,7 @@ Class Master extends DBConnection {
 	 //    UPDATE ARCHIVE
 	function update_status(){
 		extract($_POST);
-		$update = $this->conn->query("UPDATE `archive_list` set status  = '{$status}' where id = '{$id}'");
+		$update = $this->conn->query("UPDATE archive_list set status  = '{$status}' where id = '{$id}'");
 		if($update){
 			$resp['status'] = 'success';
 			$resp['msg'] = "Archive status has successfully updated.";
