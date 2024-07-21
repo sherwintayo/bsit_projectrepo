@@ -1,13 +1,4 @@
 <?php
-
-// define('base_app', '/uploads');
-
-// // Example of how to set directory permissions (Unix-based systems)
-// chmod('uploads/banners', 0777);  // Make it writable
-// chmod('uploads/pdf', 0777);      // Make it writable
-// chmod('uploads/zip', 0777);      // Make it writable
-// chmod('uploads/sql', 0777);      // Make it writable
-
 require_once('../config.php');
 Class Master extends DBConnection {
 	private $settings;
@@ -331,77 +322,54 @@ Class Master extends DBConnection {
                 }
             }
 
-                                  // Handle ZIP Upload
-								  if (isset($_FILES['zipfiles']) && !empty($_FILES['zipfiles']['tmp_name'][0])) {
-									$zip = new ZipArchive();
-									$zip_fname = 'uploads/zip/archive-' . $aid . '.zip';
-									$dir_path = base_app . $zip_fname;
-									if ($zip->open($dir_path, ZipArchive::CREATE | ZipArchive::OVERWRITE)) {
-										foreach ($_FILES['zipfiles']['tmp_name'] as $key => $tmp_name) {
-											$type = mime_content_type($tmp_name);
-											$allowed = array('image/png', 'image/jpeg', 'image/jpg', 'application/pdf', 'text/plain', 'application/xml', 'text/x-sql', 'application/sql', 'text/sql', 'application/octet-stream');
-											if (in_array($type, $allowed)) {
-												$filename = basename($_FILES['zipfiles']['name'][$key]);
-												$zip->addFile($tmp_name, $filename);
-											} else {
-												$resp['msg'] .= " But one or more files failed to upload due to invalid file type.";
-											}
-										}
-										$zip->close();
-										$this->conn->query("UPDATE archive_list SET zip_path = CONCAT('{$zip_fname}', '?v=', unix_timestamp(CURRENT_TIMESTAMP)) WHERE id = '{$aid}' ");
-									} else {
-										$resp['msg'] .= " But ZIP file failed to create.";
-									}
-								}
-		
-								// Handle SQL Upload
-								if (isset($_FILES['sql']) && $_FILES['sql']['tmp_name'] != '') {
-									$fname = 'uploads/sql/archive-' . $aid . '.sql';
-									$dir_path = base_app . $fname;
-									$upload = $_FILES['sql']['tmp_name'];
-									$type = mime_content_type($upload);
-									$allowed = array('text/plain', 'application/xml', 'text/x-sql', 'application/sql', 'text/sql', 'application/octet-stream');
-									if (!in_array($type, $allowed)) {
-										$resp['msg'] .= " But SQL File failed to upload due to invalid file type.";
-									} else {
-										$uploaded = move_uploaded_file($_FILES['sql']['tmp_name'], $dir_path);
-									}
-									if (isset($uploaded)) {
-										$this->conn->query("UPDATE archive_list SET sql_path = CONCAT('{$fname}', '?v=', unix_timestamp(CURRENT_TIMESTAMP)) WHERE id = '{$aid}' ");
-									}
-								}
-		
-								// Logging activity for archive submission or update
-								$action = empty($id) ? "Submitted new archive '{$title}'" : "Updated archive '{$title}'";
-								$this->logActivity($action);
-		
-							} else {
-								$resp['status'] = 'failed';
-								$resp['msg'] = "An error occurred.";
-								$resp['err'] = $this->conn->error . "[{$sql}]";
-							}
-							if ($resp['status'] == 'success') {
-								$this->settings->set_flashdata('success', $resp['msg']);
-							}
-							return json_encode($resp);
-						}
-					}
-		
-					// Log activity
-					private function logActivity($action) {
-						$username = $this->settings->userdata('username');
-						$date = date('Y-m-d H:i:s');
-						$action = $this->conn->real_escape_string($action);
-						$sql = "INSERT INTO activity_log (username, date, action) VALUES ('$username', '$date', '$action')";
-						$this->conn->query($sql);
-					}
-				
+            // Handle ZIP Upload
+            if (isset($_FILES['zipfiles']) && !empty($_FILES['zipfiles']['tmp_name'][0])) {
+                $zip = new ZipArchive();
+                $zip_fname = 'uploads/zip/archive-' . $aid . '.zip';
+                $dir_path = base_app . $zip_fname;
+                if ($zip->open($dir_path, ZipArchive::CREATE | ZipArchive::OVERWRITE)) {
+                    foreach ($_FILES['zipfiles']['tmp_name'] as $key => $tmp_name) {
+                        $type = mime_content_type($tmp_name);
+                        $allowed = array('image/png', 'image/jpeg', 'application/pdf', 'text/plain');
+                        if (in_array($type, $allowed)) {
+                            $zip->addFile($tmp_name, $_FILES['zipfiles']['name'][$key]);
+                        }
+                    }
+                    $zip->close();
+                    $this->conn->query("UPDATE archive_list SET zip_path = CONCAT('{$zip_fname}', '?v=', unix_timestamp(CURRENT_TIMESTAMP)) WHERE id = '{$aid}' ");
+                } else {
+                    $resp['msg'] .= " But Zip file creation failed.";
+                }
+            }
 
+            // Handle SQL Upload
+            if (isset($_FILES['sql']) && $_FILES['sql']['tmp_name'] != '') {
+                $fname = 'uploads/sql/archive-' . $aid . '.sql';
+                $dir_path = base_app . $fname;
+                $upload = $_FILES['sql']['tmp_name'];
+                $type = mime_content_type($upload);
+                $allowed = array('text/plain', 'application/xml', 'text/x-sql', 'application/sql', 'text/sql', 'application/octet-stream');
+                if (!in_array($type, $allowed)) {
+                    $resp['msg'] .= " But SQL File has failed to upload due to invalid file type.";
+                } else {
+                    $uploaded = move_uploaded_file($_FILES['sql']['tmp_name'], $dir_path);
+                }
+                if (isset($uploaded)) {
+                    $this->conn->query("UPDATE archive_list SET sql_path = CONCAT('{$fname}', '?v=', unix_timestamp(CURRENT_TIMESTAMP)) WHERE id = '{$aid}' ");
+                }
+            }
+        } else {
+            $resp['status'] = 'failed';
+            $resp['msg'] = 'An error occurred while saving the archive.';
+            $resp['error'] = $this->conn->error;
+            if (empty($id))
+                $this->conn->query("DELETE FROM archive_list WHERE id = '{$aid}' ");
+        }
 
+        return json_encode($resp);
+    }
 
-
-
-
+	
 	
 
 	    //    DELETE ARCHIVE
