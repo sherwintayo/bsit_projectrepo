@@ -1,5 +1,10 @@
 <?php
 require_once('../config.php');
+require 'vendor/autoload.php'; // Include PHPMailer
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
 Class Users extends DBConnection {
 	private $settings;
 	public function __construct(){
@@ -248,33 +253,60 @@ Class Users extends DBConnection {
 	}
 
 	public function forgot_password() {
-		extract($_POST);
-		if (empty($email)) {
-			return json_encode(['status' => 'error', 'msg' => 'Email address is required']);
-		}
-	
-		$qry = $this->conn->query("SELECT * FROM `student_list` WHERE email = '{$email}'");
-		if ($qry->num_rows > 0) {
-			$token = bin2hex(random_bytes(16));
-			$expires_at = time() + 3600; // 1 hour expiry
-			$this->conn->query("INSERT INTO `password_resets` (email, token, expires_at) VALUES ('{$email}', '{$token}', '{$expires_at}')");
-	
-			// Send reset email
-		//	$reset_link = "http://localhost/bsit_projectrepo/reset_password.php?token={$token}";
-			$reset_link = "http://mccbsitrepositories.com/reset_password.php?token={$token}";
-			$subject = "Password Reset Request";
-			$message = "Click the following link to reset your password: {$reset_link}";
-			$headers = "From: no-reply@yourdomain.com";
-	
-			if (mail($email, $subject, $message, $headers)) {
-				return json_encode(['status' => 'success']);
-			} else {
-				return json_encode(['status' => 'error', 'msg' => 'Failed to send reset email']);
-			}
-		} else {
-			return json_encode(['status' => 'error', 'msg' => 'No account found with that email address']);
-		}
-	}
+        // Extract email from the POST data
+        $email = isset($_POST['email']) ? $_POST['email'] : '';
+
+        // Check if the email is not empty
+        if (empty($email)) {
+            return json_encode(['status' => 'error', 'msg' => 'Email address is required']);
+        }
+
+        // Check if the email exists in the database
+        $qry = $this->conn->query("SELECT * FROM `student_list` WHERE email = '{$email}'");
+        if ($qry->num_rows > 0) {
+            $user = $qry->fetch_assoc();
+            $token = bin2hex(random_bytes(50));
+            $expires = date("U") + 1800; // 30 minutes
+
+            // Delete any existing reset requests for this email
+            $this->conn->query("DELETE FROM `password_resets` WHERE email = '{$email}'");
+            // Insert the new reset request
+            $this->conn->query("INSERT INTO `password_resets` (`email`, `token`, `expires_at`) VALUES ('{$email}', '{$token}', '{$expires}')");
+
+            // Create the reset URL
+            $url = base_url . "reset_password.php?token=" . $token;
+
+            // Send the email using PHPMailer
+            $mail = new PHPMailer(true);
+            try {
+                //Server settings
+                $mail->isSMTP();
+                $mail->Host = 'smtp.gmail.com'; // Set the SMTP server to send through
+                $mail->SMTPAuth = true;
+                $mail->Username = 'your-email@gmail.com'; // Your Gmail address
+                $mail->Password = 'your-email-password'; // Your Gmail password
+                $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+                $mail->Port = 587;
+
+                //Recipients
+                $mail->setFrom('your-email@gmail.com', 'Mailer');
+                $mail->addAddress($email); // Add a recipient
+
+                // Content
+                $mail->isHTML(true);
+                $mail->Subject = 'Password Reset Request';
+                $mail->Body    = "We received a password reset request. The link to reset your password is below. If you did not make this request, you can ignore this email.<br><br>Here is your password reset link:<br><a href='$url'>$url</a>";
+                $mail->AltBody = "We received a password reset request. The link to reset your password is below. If you did not make this request, you can ignore this email.\n\nHere is your password reset link:\n$url";
+
+                $mail->send();
+                return json_encode(['status' => 'success']);
+            } catch (Exception $e) {
+                return json_encode(['status' => 'error', 'msg' => "Message could not be sent. Mailer Error: {$mail->ErrorInfo}"]);
+            }
+        } else {
+            return json_encode(['status' => 'error', 'msg' => 'No account found with that email']);
+        }
+    }
 	
 	
 
@@ -308,25 +340,26 @@ Class Users extends DBConnection {
 $users = new users();
 $action = !isset($_GET['f']) ? 'none' : strtolower($_GET['f']);
 switch ($action) {
-	case 'save':
-		echo $users->save_users();
-	break;
-	case 'delete':
-		echo $users->delete_users();
-	break;
-	case 'save_student':
-		echo $users->save_student();
-	break;
-	case 'delete_student':
-		echo $users->delete_student();
-	break;
-	case 'verify_student':
-		echo $users->verify_student();
-	break;
-	case 'forgot_password':
+    case 'save':
+        echo $users->save_users();
+    break;
+    case 'delete':
+        echo $users->delete_users();
+    break;
+    case 'save_student':
+        echo $users->save_student();
+    break;
+    case 'delete_student':
+        echo $users->delete_student();
+    break;
+    case 'verify_student':
+        echo $users->verify_student();
+    break;
+    case 'forgot_password':
         echo $users->forgot_password();
-        break;
-	default:
-		// echo $sysset->index();
-		break;
+    break;
+    default:
+        // echo $sysset->index();
+    break;
 }
+?>

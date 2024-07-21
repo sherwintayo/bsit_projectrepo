@@ -43,7 +43,7 @@
     end_loader();
     $('#forgot-password-form').submit(function(e){
         e.preventDefault();
-        console.log($('#email').val()); 
+        console.log($('#email').val()); // Log the email value for debugging
         var _this = $(this);
         $(".pop-msg").remove();
         var el = $("<div>").addClass("alert pop-msg my-2").hide();
@@ -63,10 +63,8 @@
             },
             success: function(resp) {
                 if (resp.status == 'success') {
-                    alert_toast("Password reset email has been sent.", 'success');
-                    setTimeout(() => {
-                        location.href = 'login.php';
-                    }, 2000);
+                    alert_toast("Password reset link sent to your email.", 'success');
+                    _this[0].reset();
                 } else if (resp.msg) {
                     el.text(resp.msg);
                     el.addClass("alert-danger");

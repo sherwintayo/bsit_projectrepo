@@ -16,5 +16,8 @@
     },
     "minimum-stability": "stable",
     "prefer-stable": true,
-    "license": "MIT"
+    "license": "MIT",
+    "require": {
+        "phpmailer/phpmailer": "^6.9"
+    }
 }
