@@ -253,6 +253,9 @@ Class Users extends DBConnection {
 	}
 
 	public function forgot_password() {
+    	ini_set('display_errors', 1);
+		ini_set('display_startup_errors', 1);
+		error_reporting(E_ALL);
         // Extract email from the POST data
         $email = isset($_POST['email']) ? $_POST['email'] : '';
 
