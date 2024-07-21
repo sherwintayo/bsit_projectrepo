@@ -260,8 +260,8 @@ Class Users extends DBConnection {
 			$this->conn->query("INSERT INTO `password_resets` (email, token, expires_at) VALUES ('{$email}', '{$token}', '{$expires_at}')");
 	
 			// Send reset email
-			$reset_link = "http://localhost/bsit_projectrepo/reset_password.php?token={$token}";
-		//	$reset_link = "http://yourdomain.com/reset_password.php?token={$token}";
+		//	$reset_link = "http://localhost/bsit_projectrepo/reset_password.php?token={$token}";
+			$reset_link = "http://mccbsitrepositories.com/reset_password.php?token={$token}";
 			$subject = "Password Reset Request";
 			$message = "Click the following link to reset your password: {$reset_link}";
 			$headers = "From: no-reply@yourdomain.com";
