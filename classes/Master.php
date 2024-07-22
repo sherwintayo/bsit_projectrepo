@@ -234,12 +234,18 @@ Class Master extends DBConnection {
 			$_POST['student_id'] = $this->settings->userdata('id');
 			$_POST['curriculum_id'] = $this->settings->userdata('curriculum_id');
 		}
-		if (isset($_POST['abstract']))
+	
+		if (isset($_POST['abstract'])) {
 			$_POST['abstract'] = htmlentities($_POST['abstract']);
-		if (isset($_POST['members']))
+		}
+	
+		if (isset($_POST['members'])) {
 			$_POST['members'] = htmlentities($_POST['members']);
+		}
+	
 		extract($_POST);
 		$data = "";
+	
 		if (isset($_FILES['pdf']) && !empty($_FILES['pdf']['tmp_name'])) {
 			$type = mime_content_type($_FILES['pdf']['tmp_name']);
 			if ($type != "application/pdf") {
@@ -257,20 +263,23 @@ Class Master extends DBConnection {
 				$data .= " {$k}='{$v}' ";
 			}
 		}
+	
 		if (empty($id)) {
 			$sql = "INSERT INTO archive_list SET {$data} ";
 		} else {
 			$sql = "UPDATE archive_list SET {$data} WHERE id = '{$id}' ";
 		}
+	
 		$save = $this->conn->query($sql);
 		if ($save) {
 			$aid = !empty($id) ? $id : $this->conn->insert_id;
 			$resp['status'] = 'success';
 			$resp['id'] = $aid;
-			if (empty($id))
+			if (empty($id)) {
 				$resp['msg'] = "Archive was successfully submitted";
-			else
+			} else {
 				$resp['msg'] = "Archive details were updated successfully.";
+			}
 	
 			// Handle Image Upload
 			if (isset($_FILES['img']) && $_FILES['img']['tmp_name'] != '') {
@@ -361,13 +370,17 @@ Class Master extends DBConnection {
 		} else {
 			$resp['status'] = 'failed';
 			$resp['msg'] = 'An error occurred while saving the archive.';
-			$resp['error'] = $this->conn->error;
+			$resp['error'] = $this->conn->error; // Capture SQL error
+			error_log("SQL Error: " . $this->conn->error); // Log SQL error
+			error_log("SQL Query: " . $sql); // Log the SQL query
+	
 			if (empty($id))
 				$this->conn->query("DELETE FROM archive_list WHERE id = '{$aid}' ");
 		}
 	
 		return json_encode($resp);
 	}
+	
 	
 
 	
