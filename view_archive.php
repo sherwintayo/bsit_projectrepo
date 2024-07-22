@@ -59,20 +59,26 @@ if(isset($_GET['id']) && $_GET['id'] > 0){
                         <legend class="text-navy">Members:</legend>
                         <div class="pl-4"><large><?= isset($members) ? html_entity_decode($members) : "" ?></large></div>
                     </fieldset>
-					<fieldset>
-						<legend class="text-navy">Project Files:</legend>
-						
-						<a class="btn btn-success" href="<?php echo base_url.'uploads/files/upload_'.$id.'.zip' ?>">Download Project files</a>
-						
-					</fieldset>
-					<fieldset>
-						<legend class="text-navy">SQL file:</legend>
-						 <div class="pl-4">
-						<textarea id="summernote" class="form-control form-control-border summernote" readonly>
-						<?= isset($sql_path) ? nl2br(file_get_contents(html_entity_decode(base_url.$sql_path))) : "" ?>
-						</textarea>
-						</div> 
-					</fieldset>
+                    <fieldset>
+                        <legend class="text-navy">Project Files:</legend>
+                        <?php if(isset($zip_path) && file_exists(base_app.$zip_path)): ?>
+                            <a class="btn btn-success" href="<?= base_url.$zip_path ?>" download>Download Project Files</a>
+                        <?php else: ?>
+                            <p>No ZIP file uploaded.</p>
+                        <?php endif; ?>
+                    </fieldset>
+                    <fieldset>
+                        <legend class="text-navy">SQL File:</legend>
+                        <?php if(isset($sql_path) && file_exists(base_app.$sql_path)): ?>
+                            <div class="pl-4">
+                                <textarea id="summernote" class="form-control form-control-border summernote" readonly>
+                                <?= file_get_contents(base_app.$sql_path) ?>
+                                </textarea>
+                            </div>
+                        <?php else: ?>
+                            <p>No SQL file uploaded.</p>
+                        <?php endif; ?>
+                    </fieldset>
                     <fieldset>
                         <legend class="text-navy">Project Document:</legend>
                         <div class="pl-4">
@@ -89,32 +95,31 @@ if(isset($_GET['id']) && $_GET['id'] > 0){
         $('.delete-data').click(function(){
             _conf("Are you sure to delete <b>Archive-<?= isset($archive_code) ? $archive_code : "" ?></b>","delete_archive")
         })
-		$('.summernote').summernote({
+        $('.summernote').summernote({
             height: 200
-            
         })
-		$("#summernote").summernote("disable");
+        $("#summernote").summernote("disable");
     })
     function delete_archive(){
-		start_loader();
-		$.ajax({
-			url:_base_url_+"classes/Master.php?f=delete_archive",
-			method:"POST",
-			data:{id: "<?= isset($id) ? $id : "" ?>"},
-			dataType:"json",
-			error:err=>{
-				console.log(err)
-				alert_toast("An error occured.",'error');
-				end_loader();
-			},
-			success:function(resp){
-				if(typeof resp== 'object' && resp.status == 'success'){
-					location.replace("./");
-				}else{
-					alert_toast("An error occured.",'error');
-					end_loader();
-				}
-			}
-		})
-	}
+        start_loader();
+        $.ajax({
+            url:_base_url_+"classes/Master.php?f=delete_archive",
+            method:"POST",
+            data:{id: "<?= isset($id) ? $id : "" ?>"},
+            dataType:"json",
+            error:err=>{
+                console.log(err)
+                alert_toast("An error occured.",'error');
+                end_loader();
+            },
+            success:function(resp){
+                if(typeof resp== 'object' && resp.status == 'success'){
+                    location.replace("./");
+                }else{
+                    alert_toast("An error occured.",'error');
+                    end_loader();
+                }
+            }
+        })
+    }
 </script>
