@@ -90,11 +90,11 @@ if(isset($_GET['id']) && $_GET['id'] > 0){
                             </div>
                         </div>
                     </div>
-                    <div class="row">
+					<div class="row">
                         <div class="col-lg-12">
                             <div class="form-group">
-                                <label for="zipfiles" class="control-label text-muted">Multiple Files (ZIP Only)</label>
-                                <input type="file" id="zipfiles" name="zipfiles" class="form-control form-control-border" accept="application/zip,application/x-zip-compressed,multipart/x-zip,application/x-compressed">
+                                <label for="zipfiles" class="control-label text-muted">Create Zip of Multiple Uploaded Files</label>
+                                <input type="file" id="zipfiles" name="zipfiles[]" class="form-control form-control-border" multiple>
                             </div>
                         </div>
                     </div>
@@ -197,10 +197,7 @@ if(isset($_GET['id']) && $_GET['id'] > 0){
                         _this.prepend(el)
                         el.show('show')
                     }
-                    $('html, body').animate({
-                        scrollTop: 0
-                    }, 'fast')
-                    end_loader()
+                    end_loader();
                 }
             })
         })
