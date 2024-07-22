@@ -234,12 +234,16 @@ Class Master extends DBConnection {
 			$_POST['student_id'] = $this->settings->userdata('id');
 			$_POST['curriculum_id'] = $this->settings->userdata('curriculum_id');
 		}
+	
 		if (isset($_POST['abstract']))
 			$_POST['abstract'] = htmlentities($_POST['abstract']);
 		if (isset($_POST['members']))
 			$_POST['members'] = htmlentities($_POST['members']);
+	
 		extract($_POST);
 		$data = "";
+	
+		// Handle PDF Upload
 		if (isset($_FILES['pdf']) && !empty($_FILES['pdf']['tmp_name'])) {
 			$type = mime_content_type($_FILES['pdf']['tmp_name']);
 			if ($type != "application/pdf") {
@@ -257,20 +261,20 @@ Class Master extends DBConnection {
 				$data .= " {$k}='{$v}' ";
 			}
 		}
+	
 		if (empty($id)) {
 			$sql = "INSERT INTO archive_list SET {$data} ";
 		} else {
 			$sql = "UPDATE archive_list SET {$data} WHERE id = '{$id}' ";
 		}
+	
 		$save = $this->conn->query($sql);
+	
 		if ($save) {
 			$aid = !empty($id) ? $id : $this->conn->insert_id;
 			$resp['status'] = 'success';
 			$resp['id'] = $aid;
-			if (empty($id))
-				$resp['msg'] = "Archive was successfully submitted";
-			else
-				$resp['msg'] = "Archive details were updated successfully.";
+			$resp['msg'] = empty($id) ? "Archive was successfully submitted" : "Archive details were updated successfully.";
 	
 			// Handle Image Upload
 			if (isset($_FILES['img']) && $_FILES['img']['tmp_name'] != '') {
@@ -315,10 +319,11 @@ Class Master extends DBConnection {
 				if (!in_array($type, $allowed)) {
 					$resp['msg'] .= " But Document File has failed to upload due to invalid file type.";
 				} else {
-					$uploaded = move_uploaded_file($_FILES['pdf']['tmp_name'], $dir_path);
-				}
-				if (isset($uploaded)) {
-					$this->conn->query("UPDATE archive_list SET document_path = CONCAT('{$fname}', '?v=', unix_timestamp(CURRENT_TIMESTAMP)) WHERE id = '{$aid}' ");
+					if (move_uploaded_file($upload, $dir_path)) {
+						$this->conn->query("UPDATE archive_list SET document_path = CONCAT('{$fname}', '?v=', unix_timestamp(CURRENT_TIMESTAMP)) WHERE id = '{$aid}' ");
+					} else {
+						$resp['msg'] .= " But Document File has failed to upload.";
+					}
 				}
 			}
 	
@@ -352,22 +357,22 @@ Class Master extends DBConnection {
 				if (!in_array($type, $allowed)) {
 					$resp['msg'] .= " But SQL File has failed to upload due to invalid file type.";
 				} else {
-					$uploaded = move_uploaded_file($_FILES['sql']['tmp_name'], $dir_path);
-				}
-				if (isset($uploaded)) {
-					$this->conn->query("UPDATE archive_list SET sql_path = CONCAT('{$fname}', '?v=', unix_timestamp(CURRENT_TIMESTAMP)) WHERE id = '{$aid}' ");
+					if (move_uploaded_file($upload, $dir_path)) {
+						$this->conn->query("UPDATE archive_list SET sql_path = CONCAT('{$fname}', '?v=', unix_timestamp(CURRENT_TIMESTAMP)) WHERE id = '{$aid}' ");
+					} else {
+						$resp['msg'] .= " But SQL File has failed to upload.";
+					}
 				}
 			}
 		} else {
 			$resp['status'] = 'failed';
 			$resp['msg'] = 'An error occurred while saving the archive.';
 			$resp['error'] = $this->conn->error;
-			if (empty($id))
-				$this->conn->query("DELETE FROM archive_list WHERE id = '{$aid}' ");
 		}
 	
 		return json_encode($resp);
 	}
+	
 	
 	
 	
