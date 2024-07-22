@@ -219,6 +219,8 @@ Class Master extends DBConnection {
 
 
 	function save_archive() {
+
+		
 		if (empty($_POST['id'])) {
 			$pref = date("Ym");
 			$code = sprintf("%'.04d", 1);
@@ -253,18 +255,7 @@ Class Master extends DBConnection {
 		} else {
 			$sql = "UPDATE archive_list SET {$data} WHERE id = '{$id}' ";
 		}
-	
-		// Debug: Print uploaded files
-		print_r($_FILES);
-	
 		$save = $this->conn->query($sql);
-	
-		// Debug: Log SQL errors
-		if (!$save) {
-			error_log("SQL Error: " . $this->conn->error);
-			error_log("SQL Query: " . $sql);
-		}
-	
 		if ($save) {
 			$aid = !empty($id) ? $id : $this->conn->insert_id;
 			$resp['status'] = 'success';
@@ -370,7 +361,6 @@ Class Master extends DBConnection {
 	
 		return json_encode($resp);
 	}
-	
 	
 	
 	
