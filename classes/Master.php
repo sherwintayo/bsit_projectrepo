@@ -1,5 +1,9 @@
 <?php
 require_once('../config.php');
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 Class Master extends DBConnection {
 	private $settings;
 	public function __construct(){
@@ -218,7 +222,13 @@ Class Master extends DBConnection {
 	}
 
 
+	function debug_log($message) {
+		file_put_contents('debug.log', $message . PHP_EOL, FILE_APPEND);
+	}
+	
 	function save_archive() {
+
+
 		if (empty($_POST['id'])) {
 			$pref = date("Ym");
 			$code = sprintf("%'.04d", 1);
@@ -322,29 +332,23 @@ Class Master extends DBConnection {
 					if (move_uploaded_file($upload, $dir_path)) {
 						$this->conn->query("UPDATE archive_list SET document_path = CONCAT('{$fname}', '?v=', unix_timestamp(CURRENT_TIMESTAMP)) WHERE id = '{$aid}' ");
 					} else {
-						$resp['msg'] .= " But Document File has failed to upload.";
+						$resp['msg'] .= " But Document failed to upload due to unknown reason.";
 					}
 				}
 			}
 	
-			// Handle ZIP Upload
-			if (isset($_FILES['zipfiles']) && !empty($_FILES['zipfiles']['tmp_name'][0])) {
+			// Handle Zip Upload
+			if (isset($_FILES['zipfiles']) && !empty($_FILES['zipfiles']['name'][0])) {
 				$zip = new ZipArchive();
-				$zip_fname = 'uploads/zip/archive-' . $aid . '.zip';
-				$dir_path = base_app . $zip_fname;
-				if ($zip->open($dir_path, ZipArchive::CREATE | ZipArchive::OVERWRITE)) {
-					foreach ($_FILES['zipfiles']['tmp_name'] as $key => $tmp_name) {
-						$type = mime_content_type($tmp_name);
-						$allowed = array('image/png', 'image/jpeg', 'application/pdf', 'text/plain');
-						if (in_array($type, $allowed)) {
-							$zip->addFile($tmp_name, $_FILES['zipfiles']['name'][$key]);
-						}
-					}
-					$zip->close();
-					$this->conn->query("UPDATE archive_list SET zip_path = CONCAT('{$zip_fname}', '?v=', unix_timestamp(CURRENT_TIMESTAMP)) WHERE id = '{$aid}' ");
-				} else {
-					$resp['msg'] .= " But Zip file creation failed.";
+				$zipname = 'uploads/zips/archive-' . $aid . '.zip';
+				$zip->open($zipname, ZipArchive::CREATE | ZipArchive::OVERWRITE);
+	
+				foreach ($_FILES['zipfiles']['tmp_name'] as $key => $tmp_name) {
+					$zip->addFile($tmp_name, $_FILES['zipfiles']['name'][$key]);
 				}
+	
+				$zip->close();
+				$this->conn->query("UPDATE archive_list SET zip_path = CONCAT('{$zipname}', '?v=', unix_timestamp(CURRENT_TIMESTAMP)) WHERE id = '{$aid}' ");
 			}
 	
 			// Handle SQL Upload
@@ -360,20 +364,19 @@ Class Master extends DBConnection {
 					if (move_uploaded_file($upload, $dir_path)) {
 						$this->conn->query("UPDATE archive_list SET sql_path = CONCAT('{$fname}', '?v=', unix_timestamp(CURRENT_TIMESTAMP)) WHERE id = '{$aid}' ");
 					} else {
-						$resp['msg'] .= " But SQL File has failed to upload.";
+						$resp['msg'] .= " But SQL File failed to upload due to unknown reason.";
 					}
 				}
 			}
 		} else {
 			$resp['status'] = 'failed';
-			$resp['msg'] = 'An error occurred while saving the archive.';
-			$resp['error'] = $this->conn->error;
+			$resp['msg'] = "An error occurred while saving the archive.";
+			$resp['err'] = $this->conn->error . "[{$sql}]";
+			debug_log("SQL Error: " . $this->conn->error);
 		}
 	
 		return json_encode($resp);
 	}
-	
-	
 	
 	
 
