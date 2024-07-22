@@ -219,8 +219,6 @@ Class Master extends DBConnection {
 
 
 	function save_archive() {
-
-		
 		if (empty($_POST['id'])) {
 			$pref = date("Ym");
 			$code = sprintf("%'.04d", 1);
@@ -242,6 +240,15 @@ Class Master extends DBConnection {
 			$_POST['members'] = htmlentities($_POST['members']);
 		extract($_POST);
 		$data = "";
+		if (isset($_FILES['pdf']) && !empty($_FILES['pdf']['tmp_name'])) {
+			$type = mime_content_type($_FILES['pdf']['tmp_name']);
+			if ($type != "application/pdf") {
+				$resp['status'] = "failed";
+				$resp['msg'] = "Invalid Document File Type.";
+				return json_encode($resp);
+			}
+		}
+	
 		foreach ($_POST as $k => $v) {
 			if (!in_array($k, array('id')) && !is_array($_POST[$k])) {
 				if (!is_numeric($v))
@@ -268,11 +275,13 @@ Class Master extends DBConnection {
 			// Handle Image Upload
 			if (isset($_FILES['img']) && $_FILES['img']['tmp_name'] != '') {
 				$fname = 'uploads/banners/archive-' . $aid . '.png';
-				$dir_path = $base_app . $fname;
+				$dir_path = base_app . $fname;
 				$upload = $_FILES['img']['tmp_name'];
 				$type = mime_content_type($upload);
 				$allowed = array('image/png', 'image/jpeg', 'image/jpg');
-				if (in_array($type, $allowed)) {
+				if (!in_array($type, $allowed)) {
+					$resp['msg'] .= " But Image failed to upload due to invalid file type.";
+				} else {
 					list($width, $height) = getimagesize($upload);
 					$new_width = 1280;
 					$new_height = 720;
@@ -290,8 +299,6 @@ Class Master extends DBConnection {
 					} else {
 						$resp['msg'] .= " But Image failed to upload due to unknown reason.";
 					}
-				} else {
-					$resp['msg'] .= " But Image failed to upload due to invalid file type.";
 				}
 				if (isset($uploaded_img)) {
 					$this->conn->query("UPDATE archive_list SET banner_path = CONCAT('{$fname}', '?v=', unix_timestamp(CURRENT_TIMESTAMP)) WHERE id = '{$aid}' ");
@@ -301,14 +308,14 @@ Class Master extends DBConnection {
 			// Handle PDF Upload
 			if (isset($_FILES['pdf']) && $_FILES['pdf']['tmp_name'] != '') {
 				$fname = 'uploads/pdf/archive-' . $aid . '.pdf';
-				$dir_path = $base_app . $fname;
+				$dir_path = base_app . $fname;
 				$upload = $_FILES['pdf']['tmp_name'];
 				$type = mime_content_type($upload);
 				$allowed = array('application/pdf');
-				if (in_array($type, $allowed)) {
-					$uploaded = move_uploaded_file($_FILES['pdf']['tmp_name'], $dir_path);
-				} else {
+				if (!in_array($type, $allowed)) {
 					$resp['msg'] .= " But Document File has failed to upload due to invalid file type.";
+				} else {
+					$uploaded = move_uploaded_file($_FILES['pdf']['tmp_name'], $dir_path);
 				}
 				if (isset($uploaded)) {
 					$this->conn->query("UPDATE archive_list SET document_path = CONCAT('{$fname}', '?v=', unix_timestamp(CURRENT_TIMESTAMP)) WHERE id = '{$aid}' ");
@@ -319,7 +326,7 @@ Class Master extends DBConnection {
 			if (isset($_FILES['zipfiles']) && !empty($_FILES['zipfiles']['tmp_name'][0])) {
 				$zip = new ZipArchive();
 				$zip_fname = 'uploads/zip/archive-' . $aid . '.zip';
-				$dir_path = $base_app . $zip_fname;
+				$dir_path = base_app . $zip_fname;
 				if ($zip->open($dir_path, ZipArchive::CREATE | ZipArchive::OVERWRITE)) {
 					foreach ($_FILES['zipfiles']['tmp_name'] as $key => $tmp_name) {
 						$type = mime_content_type($tmp_name);
@@ -338,14 +345,14 @@ Class Master extends DBConnection {
 			// Handle SQL Upload
 			if (isset($_FILES['sql']) && $_FILES['sql']['tmp_name'] != '') {
 				$fname = 'uploads/sql/archive-' . $aid . '.sql';
-				$dir_path = $base_app . $fname;
+				$dir_path = base_app . $fname;
 				$upload = $_FILES['sql']['tmp_name'];
 				$type = mime_content_type($upload);
 				$allowed = array('text/plain', 'application/xml', 'text/x-sql', 'application/sql', 'text/sql', 'application/octet-stream');
-				if (in_array($type, $allowed)) {
-					$uploaded = move_uploaded_file($_FILES['sql']['tmp_name'], $dir_path);
-				} else {
+				if (!in_array($type, $allowed)) {
 					$resp['msg'] .= " But SQL File has failed to upload due to invalid file type.";
+				} else {
+					$uploaded = move_uploaded_file($_FILES['sql']['tmp_name'], $dir_path);
 				}
 				if (isset($uploaded)) {
 					$this->conn->query("UPDATE archive_list SET sql_path = CONCAT('{$fname}', '?v=', unix_timestamp(CURRENT_TIMESTAMP)) WHERE id = '{$aid}' ");
