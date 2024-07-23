@@ -15,6 +15,7 @@
     color: white;
     margin-right: 10px;
     position: relative;
+    cursor: pointer;
   }
   .notification-count {
     position: absolute;
@@ -29,6 +30,33 @@
     align-items: center;
     justify-content: center;
     font-size: 0.8em;
+  }
+  .notification-dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background-color: white;
+    border: 1px solid #ddd;
+    box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+    z-index: 1000;
+    width: 300px;
+  }
+  .notification-dropdown .dropdown-item {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    color: #333;
+    text-decoration: none;
+    display: block;
+  }
+  .notification-dropdown .dropdown-item:last-child {
+    border-bottom: none;
+  }
+  .notification-dropdown .dropdown-item:hover {
+    background-color: #f1f1f1;
+  }
+  .notification-dropdown.show {
+    display: block;
   }
 </style>
 <!-- Navbar -->
@@ -47,7 +75,7 @@
           padding-top: calc(5em) !important;
       }
       </style>
-     <nav class="bg-navy w-100 px-2 py-1 position-fixed top-0" id="login-nav">
+    <nav class="bg-navy w-100 px-2 py-1 position-fixed top-0" id="login-nav">
   <div class="d-flex justify-content-between w-100">
     <div>
       <span class="mr-2 text-white"><i class="fa fa-phone mr-1"></i> <?= $_settings->info('contact') ?></span>
@@ -56,9 +84,17 @@
       <?php if($_settings->userdata('id') > 0): ?>
         <span class="mx-2">
           <!-- Notification Icon -->
-          <span class="notification-icon"><i class="fa fa-bell"></i>
+          <span class="notification-icon" id="notification-icon">
+            <i class="fa fa-bell"></i>
             <span class="notification-count">3</span> <!-- Change the number dynamically -->
           </span>
+          <!-- Dropdown Menu -->
+          <div class="notification-dropdown" id="notification-dropdown">
+            <a href="#" class="dropdown-item">New message from Admin</a>
+            <a href="#" class="dropdown-item">Project submission update</a>
+            <a href="#" class="dropdown-item">Reminder: Thesis deadline</a>
+            <a href="#" class="dropdown-item">Other notifications...</a>
+          </div>
         </span>
         <span class="mx-2"><img src="<?= validate_image($_settings->userdata('avatar')) ?>" alt="User Avatar" id="student-img-avatar"></span>
         <span class="mx-2">Howdy, <?= !empty($_settings->userdata('email')) ? $_settings->userdata('email') : $_settings->userdata('username') ?></span>
@@ -172,5 +208,16 @@
         location.href = "./?page=projects&q="+encodeURI($(this).val());
       }
     })
+    
+    // Notification Dropdown
+    $('#notification-icon').click(function(){
+      $('#notification-dropdown').toggleClass('show');
+    });
+    
+    $(document).click(function(e) {
+      if (!$(e.target).closest('#notification-icon, #notification-dropdown').length) {
+        $('#notification-dropdown').removeClass('show');
+      }
+    });
   })
 </script>
