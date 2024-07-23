@@ -62,23 +62,19 @@
                 end_loader();
             },
             success: function(resp) {
-                if (resp.status == 'success') {
-                    alert_toast("Password reset link sent to your email.", 'success');
-                    _this[0].reset();
-                } else if (resp.msg) {
-                    el.text(resp.msg);
-                    el.addClass("alert-danger");
-                    _this.prepend(el);
-                    el.show('show');
-                } else {
-                    el.text("An error occurred while processing your request");
-                    el.addClass("alert-danger");
-                    _this.prepend(el);
-                    el.show('show');
-                }
-                end_loader();
-                $('html, body').animate({scrollTop: 0}, 'fast');
-            }
+    console.log(resp); // Log the response for debugging
+    if (resp.status === 'success') {
+        alert_toast("Password reset link sent to your email.", 'success');
+        _this[0].reset();
+    } else {
+        el.text(resp.msg || "An error occurred while processing your request");
+        el.addClass("alert-danger");
+        _this.prepend(el);
+        el.show('slow');
+    }
+    end_loader();
+    $('html, body').animate({scrollTop: 0}, 'fast');
+}
         })
     })
 })

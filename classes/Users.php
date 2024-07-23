@@ -253,46 +253,51 @@ Class Users extends DBConnection {
 	}
 
 	public function forgot_password() {
-		// Extract email from the POST data
 		$email = isset($_POST['email']) ? $_POST['email'] : '';
 	
-		// Check if the email is not empty
 		if (empty($email)) {
+			error_log("Email address is required");
 			return json_encode(['status' => 'error', 'msg' => 'Email address is required']);
 		}
 	
-		// Check if the email exists in the database
 		$qry = $this->conn->query("SELECT * FROM `student_list` WHERE email = '{$email}'");
+		if ($qry === false) {
+			error_log("Query error: " . $this->conn->error);
+			return json_encode(['status' => 'error', 'msg' => 'Database query failed']);
+		}
+	
 		if ($qry->num_rows > 0) {
 			$user = $qry->fetch_assoc();
 			$token = bin2hex(random_bytes(50));
-			$expires = date("U") + 1800; // 30 minutes
+			$expires = date("U") + 1800;
 	
-			// Delete any existing reset requests for this email
-			$this->conn->query("DELETE FROM `password_resets` WHERE email = '{$email}'");
-			// Insert the new reset request
-			$this->conn->query("INSERT INTO `password_resets` (`email`, `token`, `expires_at`) VALUES ('{$email}', '{$token}', '{$expires}')");
+			// Delete any existing reset requests
+			if ($this->conn->query("DELETE FROM `password_resets` WHERE email = '{$email}'") === false) {
+				error_log("Delete query error: " . $this->conn->error);
+				return json_encode(['status' => 'error', 'msg' => 'Failed to clear previous reset requests']);
+			}
 	
-			// Create the reset URL
+			// Insert new reset request
+			if ($this->conn->query("INSERT INTO `password_resets` (`email`, `token`, `expires_at`) VALUES ('{$email}', '{$token}', '{$expires}')") === false) {
+				error_log("Insert query error: " . $this->conn->error);
+				return json_encode(['status' => 'error', 'msg' => 'Failed to insert reset request']);
+			}
+	
 			$url = base_url . "reset_password.php?token=" . $token;
 	
-			// Send the email using PHPMailer
 			$mail = new PHPMailer(true);
 			try {
-				//Server settings
 				$mail->isSMTP();
-				$mail->Host = 'smtp.gmail.com'; // Set the SMTP server to send through
+				$mail->Host = 'smtp.gmail.com';
 				$mail->SMTPAuth = true;
-				$mail->Username = 'your-email@gmail.com'; // Your Gmail address
-				$mail->Password = 'your-email-password'; // Your Gmail password
+				$mail->Username = 'your-email@gmail.com';
+				$mail->Password = 'your-email-password';
 				$mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
 				$mail->Port = 587;
 	
-				//Recipients
 				$mail->setFrom('your-email@gmail.com', 'Mailer');
-				$mail->addAddress($email); // Add a recipient
+				$mail->addAddress($email);
 	
-				// Content
 				$mail->isHTML(true);
 				$mail->Subject = 'Password Reset Request';
 				$mail->Body    = "We received a password reset request. The link to reset your password is below. If you did not make this request, you can ignore this email.<br><br>Here is your password reset link:<br><a href='$url'>$url</a>";
@@ -301,12 +306,14 @@ Class Users extends DBConnection {
 				$mail->send();
 				return json_encode(['status' => 'success']);
 			} catch (Exception $e) {
+				error_log("Mail error: " . $mail->ErrorInfo);
 				return json_encode(['status' => 'error', 'msg' => "Message could not be sent. Mailer Error: {$mail->ErrorInfo}"]);
 			}
 		} else {
 			return json_encode(['status' => 'error', 'msg' => 'No account found with that email']);
 		}
 	}
+	
 	
 
 
