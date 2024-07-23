@@ -406,21 +406,54 @@ Class Master extends DBConnection {
 		}
 		return json_encode($resp);
 	}
-	 //    UPDATE ARCHIVE
+
 	function update_status(){
 		extract($_POST);
-		$update = $this->conn->query("UPDATE `archive_list` set status  = '{$status}' where id = '{$id}'");
+		$update = $this->conn->query("UPDATE `archive_list` set status = '{$status}' where id = '{$id}'");
 		if($update){
 			$resp['status'] = 'success';
 			$resp['msg'] = "Archive status has successfully updated.";
+
+			// Fetch student ID and project title
+			$project_query = $this->conn->query("SELECT `student_id`, `title` FROM `archive_list` WHERE `id` = '{$id}'");
+			if($project_query->num_rows > 0){
+				$project = $project_query->fetch_assoc();
+				$student_id = $project['student_id'];
+				$project_title = $project['title'];
+
+				// Prepare the notification message
+				$message = $status ? "Your project '$project_title' has been published." : "Your project '$project_title' has been unpublished.";
+
+				// Insert the notification into the notifications table
+				$notif_query = "INSERT INTO `notifications` (`student_id`, `message`, `status`, `created_at`) VALUES ('{$student_id}', '{$message}', 0, NOW())";
+				$this->conn->query($notif_query);
+			}
+
+			$this->settings->set_flashdata('success',$resp['msg']);
 		}else{
 			$resp['status'] = 'failed';
 			$resp['msg'] = "An error occurred. Error: " .$this->conn->error;
 		}
-		if($resp['status'] =='success')
-		$this->settings->set_flashdata('success',$resp['msg']);
 		return json_encode($resp);
 	}
+
+
+
+	 //    UPDATE ARCHIVE
+	// function update_status(){
+	// 	extract($_POST);
+	// 	$update = $this->conn->query("UPDATE `archive_list` set status  = '{$status}' where id = '{$id}'");
+	// 	if($update){
+	// 		$resp['status'] = 'success';
+	// 		$resp['msg'] = "Archive status has successfully updated.";
+	// 	}else{
+	// 		$resp['status'] = 'failed';
+	// 		$resp['msg'] = "An error occurred. Error: " .$this->conn->error;
+	// 	}
+	// 	if($resp['status'] =='success')
+	// 	$this->settings->set_flashdata('success',$resp['msg']);
+	// 	return json_encode($resp);
+	// }
 }
 
 $Master = new Master();

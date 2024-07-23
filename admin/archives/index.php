@@ -101,8 +101,11 @@
 
         // Event listener for the update status button
         $('.update_status').click(function(){
-            uni_modal("Update Details", "archives/update_status.php?id=" + $(this).attr('data-id') + "&status=" + $(this).attr('data-status'))
-        });
+        uni_modal("Update Details", "archives/update_status.php?id=" + $(this).attr('data-id') + "&status=" + $(this).attr('data-status'))
+         });
+        // $('.update_status').click(function(){
+        //     uni_modal("Update Details", "archives/update_status.php?id=" + $(this).attr('data-id') + "&status=" + $(this).attr('data-status'))
+        // });
 
         // Add classes to table elements
         $('.table td,.table th').addClass('py-1 px-2 align-middle');
@@ -117,26 +120,26 @@
 
     // Function to delete an archive
     function delete_archive(id){
-        start_loader();
-        $.ajax({
-            url: _base_url_ + "classes/Master.php?f=delete_archive",
-            method: "POST",
-            data: {id: id},
-            dataType: "json",
-            error: function(err){
-                console.log("Error: ", err); // Debugging step
+    start_loader();
+    $.ajax({
+        url: _base_url_ + "classes/Master.php?f=delete_archive",
+        method: "POST",
+        data: {id: id},
+        dataType: "json",
+        error: function(err){
+            console.log("Error: ", err); // Debugging step
+            alert_toast("An error occurred.", 'error');
+            end_loader();
+        },
+        success: function(resp){
+            console.log("Response: ", resp); // Debugging step
+            if (typeof resp === 'object' && resp.status === 'success') {
+                location.reload();
+            } else {
                 alert_toast("An error occurred.", 'error');
                 end_loader();
-            },
-            success: function(resp){
-                console.log("Response: ", resp); // Debugging step
-                if (typeof resp === 'object' && resp.status === 'success') {
-                    location.reload();
-                } else {
-                    alert_toast("An error occurred.", 'error');
-                    end_loader();
-                }
             }
-        });
-    }
+        }
+    });
+}
 </script>
