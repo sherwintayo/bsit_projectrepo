@@ -1,6 +1,9 @@
 <?php
 require_once('../config.php');
 require 'vendor/autoload.php'; // Include PHPMailer
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
@@ -254,12 +257,12 @@ Class Users extends DBConnection {
 
 	public function forgot_password() {
 		$email = isset($_POST['email']) ? $_POST['email'] : '';
-	
 		if (empty($email)) {
 			error_log("Email address is required");
 			return json_encode(['status' => 'error', 'msg' => 'Email address is required']);
 		}
 	
+		// Check if email exists
 		$qry = $this->conn->query("SELECT * FROM `student_list` WHERE email = '{$email}'");
 		if ($qry === false) {
 			error_log("Query error: " . $this->conn->error);
@@ -285,6 +288,7 @@ Class Users extends DBConnection {
 	
 			$url = base_url . "reset_password.php?token=" . $token;
 	
+			// Send email
 			$mail = new PHPMailer(true);
 			try {
 				$mail->isSMTP();
@@ -313,6 +317,7 @@ Class Users extends DBConnection {
 			return json_encode(['status' => 'error', 'msg' => 'No account found with that email']);
 		}
 	}
+	
 	
 	
 
