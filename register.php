@@ -98,7 +98,7 @@ include('config.php') ?>
                                     <select name="program_id" id="program_id" class="form-control form-control-border select2" data-placeholder="Select Here Program" required>
                                         <option value="" ></option>
                                         <?php 
-                                        $program = $conn->query("SELECT * FROM `program_list` where status = 1 order by `name` asc");
+                                        $program = $conn->query("SELECT * FROM program_list where status = 1 order by name asc");
                                         while($row = $program->fetch_assoc()):
                                         ?>
 										
@@ -115,7 +115,7 @@ include('config.php') ?>
                                     <select name="curriculum_id" id="curriculum_id" class="form-control form-control-border select2" data-placeholder="Select Here Curriculum" required>
                                         <option value="" disabled selected>Select Program First</option>
                                         <?php 
-                                        $curriculum = $conn->query("SELECT * FROM `curriculum_list` where status = 1 order by `name` asc");
+                                        $curriculum = $conn->query("SELECT * FROM curriculum_list where status = 1 order by name asc");
                                         $cur_arr = [];
                                         while($row = $curriculum->fetch_assoc()){
                                             $row['name'] = ucwords($row['name']);
@@ -137,14 +137,14 @@ include('config.php') ?>
                         <div class="row">
                             <div class="col-lg-12">
                                 <div class="form-group">
-                                    <input type="password" name="password" id="password" placeholder="Password" class="form-control form-control-border"  minlength="8" required>
+                                    <input type="password" name="password" id="password" placeholder="Password" class="form-control form-control-border" required>
                                 </div>
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-lg-12">
                                 <div class="form-group">
-                                    <input type="password" id="cpassword" placeholder="Confirm Password" class="form-control form-control-border"  minlength="8" required>
+                                    <input type="password" id="cpassword" placeholder="Confirm Password" class="form-control form-control-border" required>
                                 </div>
                             </div>
                         </div>
