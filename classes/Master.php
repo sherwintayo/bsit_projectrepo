@@ -377,11 +377,7 @@ Class Master extends DBConnection {
 	
 		return json_encode($resp);
 	}
-	
-	
 
-	
-	
 	
 	    //    DELETE ARCHIVE
 	function delete_archive(){
@@ -407,35 +403,44 @@ Class Master extends DBConnection {
 		return json_encode($resp);
 	}
 
-	function update_status(){
-		extract($_POST);
-		$update = $this->conn->query("UPDATE `archive_list` set status = '{$status}' where id = '{$id}'");
-		if($update){
-			$resp['status'] = 'success';
-			$resp['msg'] = "Archive status has successfully updated.";
+	
 
-			// Fetch student ID and project title
-			$project_query = $this->conn->query("SELECT `student_id`, `title` FROM `archive_list` WHERE `id` = '{$id}'");
-			if($project_query->num_rows > 0){
-				$project = $project_query->fetch_assoc();
-				$student_id = $project['student_id'];
-				$project_title = $project['title'];
-
-				// Prepare the notification message
-				$message = $status ? "Your project '$project_title' has been published." : "Your project '$project_title' has been unpublished.";
-
-				// Insert the notification into the notifications table
-				$notif_query = "INSERT INTO `notifications` (`student_id`, `message`, `status`, `created_at`) VALUES ('{$student_id}', '{$message}', 0, NOW())";
-				$this->conn->query($notif_query);
-			}
-
-			$this->settings->set_flashdata('success',$resp['msg']);
-		}else{
-			$resp['status'] = 'failed';
-			$resp['msg'] = "An error occurred. Error: " .$this->conn->error;
+	function add_notification($student_id, $message) {
+		$date_created = date('Y-m-d H:i:s');
+		$status = 'unread';
+		
+		$stmt = $this->conn->prepare("INSERT INTO notifications (student_id, message, date_created, status) VALUES (?, ?, ?, ?)");
+		$stmt->bind_param("isss", $student_id, $message, $date_created, $status);
+		
+		if ($stmt->execute()) {
+			return true;
+		} else {
+			return false;
 		}
-		return json_encode($resp);
 	}
+	
+	function get_notifications($student_id) {
+		$stmt = $this->conn->prepare("SELECT * FROM notifications WHERE student_id = ? ORDER BY date_created DESC");
+		$stmt->bind_param("i", $student_id);
+		$stmt->execute();
+		$result = $stmt->get_result();
+		$notifications = array();
+	
+		while ($row = $result->fetch_assoc()) {
+			$notifications[] = $row;
+		}
+		return $notifications;
+	}
+	
+	
+	function mark_notifications_as_read($student_id) {
+		$stmt = $this->conn->prepare("UPDATE notifications SET status = 'read' WHERE student_id = ? AND status = 'unread'");
+		$stmt->bind_param("i", $student_id);
+		$stmt->execute();
+	}
+	
+	
+	
 
 
 

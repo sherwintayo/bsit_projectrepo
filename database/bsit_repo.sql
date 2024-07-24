@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 21, 2024 at 08:17 AM
+-- Generation Time: Jul 24, 2024 at 06:49 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -191,7 +191,7 @@ INSERT INTO `archive_list` (`id`, `archive_code`, `curriculum_id`, `year`, `titl
 (52, '2023080016', 7, '2023', 'Database Design system', '&lt;p&gt;Testing&lt;/p&gt;', '&lt;p&gt;rhej&lt;/p&gt;&lt;p&gt;hsis&lt;/p&gt;&lt;p&gt;gu&lt;/p&gt;', 'uploads/banners/archive-52.png?v=1691337122', 'uploads/pdf/archive-52.pdf?v=1691337123', 'uploads/files/upload_52.zip?v=1691337124', 'uploads/sql/sql52.sql?v=1691337123', 1, 13, '2023-08-06 23:52:01', NULL),
 (80, '2024070003', 7, '2024', 'House Rental Management System', '&lt;p&gt;ajncljan scbkjab swknc akbckahs&lt;/p&gt;', '&lt;p&gt;1. kjascm asbjk&lt;/p&gt;&lt;p&gt;2. klasnc. d,cne&lt;/p&gt;&lt;p&gt;3. kjaskcbakjek&lt;/p&gt;', '', '', NULL, NULL, 1, 13, '2024-07-16 22:44:58', NULL),
 (83, '2024070001', 7, '2024', 'BSIT Repository', '&lt;p&gt;acajbckjashjdcacs oasshcoahsdlvcajv olabsla olajn jsabdcg oajxbcaljsduc&lt;/p&gt;', '&lt;p&gt;AJSNCLABCLLD&lt;/p&gt;&lt;p&gt;oacnlajbdo&lt;/p&gt;&lt;p&gt;baojsablsjc&lt;/p&gt;', '', '', NULL, NULL, 1, 41, '2024-07-17 21:41:26', NULL),
-(89, '2024070002', 7, '2024', 'Pizza Store Management', '&lt;p&gt;ahbkscbvkae&lt;/p&gt;', '&lt;p&gt;kskdbcksdbck&lt;/p&gt;', '', '', NULL, NULL, 0, 41, '2024-07-21 11:51:35', NULL);
+(90, '2024070002', 7, '2024', 'Pizza Store Management', '&lt;p&gt;hkasbckdsb&amp;nbsp;&lt;/p&gt;', '&lt;p&gt;dcscscd&lt;/p&gt;', '', '', NULL, NULL, 0, 45, '2024-07-24 19:58:19', NULL);
 
 -- --------------------------------------------------------
 
@@ -255,6 +255,20 @@ INSERT INTO `keyword_search_counter` (`id`, `keyword`, `created_at`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `notifications`
+--
+
+CREATE TABLE `notifications` (
+  `id` int(11) NOT NULL,
+  `student_id` int(11) NOT NULL,
+  `message` text NOT NULL,
+  `date_created` datetime DEFAULT current_timestamp(),
+  `status` enum('read','unread') DEFAULT 'unread'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `password_resets`
 --
 
@@ -264,6 +278,13 @@ CREATE TABLE `password_resets` (
   `token` varchar(255) NOT NULL,
   `expires_at` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `password_resets`
+--
+
+INSERT INTO `password_resets` (`id`, `email`, `token`, `expires_at`) VALUES
+(1, 'sherwintayo08@gmail.com', '4dffc9be8d6d8325b085575487a8e5ad', 1721557619);
 
 -- --------------------------------------------------------
 
@@ -342,7 +363,8 @@ INSERT INTO `student_list` (`id`, `firstname`, `middlename`, `lastname`, `progra
 (39, 'ley', '', 'les', 5, 7, 'lesley@gmail.com', '8744c53672906143e20538f6ac3deadb', 'Female', 1, 'uploads/student-39.png?v=1690794880', '0000', '2023-07-31 15:39:55', NULL),
 (40, 'long', '', 'zi', 5, 7, 'zilong@gmail', '595851bf7481b355ff77a38f9183e162', 'Male', 1, 'uploads/student-40.png?v=1690794959', '0000', '2023-07-31 15:41:53', NULL),
 (41, 'Sherwin', '', 'Ciervo', 5, 7, 'sherwin@gmail.com', '875a31ea8071f7effdecf590626bde0a', 'Male', 1, '', '0000', '2024-07-15 17:46:24', NULL),
-(44, 'John', '', 'James', 5, 7, 'johnjames@gmail.com', '9ba36afc4e560bf811caefc0c7fddddf', 'Male', 0, '', '0000', '2024-07-17 17:40:15', NULL);
+(44, 'John', '', 'James', 5, 7, 'johnjames@gmail.com', '9ba36afc4e560bf811caefc0c7fddddf', 'Male', 0, '', '0000', '2024-07-17 17:40:15', NULL),
+(45, 'Sherwin', '', 'Ciervo', 5, 7, 'sherwintayo08@gmail.com', '875a31ea8071f7effdecf590626bde0a', 'Male', 1, '', '0000', '2024-07-21 15:12:56', NULL);
 
 -- --------------------------------------------------------
 
@@ -428,6 +450,12 @@ ALTER TABLE `curriculum_list`
   ADD KEY `program_id` (`program_id`);
 
 --
+-- Indexes for table `notifications`
+--
+ALTER TABLE `notifications`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `password_resets`
 --
 ALTER TABLE `password_resets`
@@ -474,7 +502,7 @@ ALTER TABLE `activity_log`
 -- AUTO_INCREMENT for table `archive_list`
 --
 ALTER TABLE `archive_list`
-  MODIFY `id` int(30) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=90;
+  MODIFY `id` int(30) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=91;
 
 --
 -- AUTO_INCREMENT for table `curriculum_list`
@@ -483,10 +511,16 @@ ALTER TABLE `curriculum_list`
   MODIFY `id` int(30) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
+-- AUTO_INCREMENT for table `notifications`
+--
+ALTER TABLE `notifications`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `password_resets`
 --
 ALTER TABLE `password_resets`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `program_list`
@@ -498,7 +532,7 @@ ALTER TABLE `program_list`
 -- AUTO_INCREMENT for table `student_list`
 --
 ALTER TABLE `student_list`
-  MODIFY `id` int(30) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=45;
+  MODIFY `id` int(30) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=46;
 
 --
 -- AUTO_INCREMENT for table `system_info`

@@ -1,3 +1,26 @@
+<?php
+require_once('config.php');
+
+if (!isset($_SESSION['user_id'])) {
+    echo json_encode(['count' => 0, 'notifications' => []]);
+    exit;
+}
+
+$user_id = $_SESSION['user_id'];
+
+$master = new Master();
+$notifications = $master->get_notifications($user_id);
+$unread_count = array_filter($notifications, function($n) {
+    return $n['status'] === 'unread';
+});
+
+header('Content-Type: application/json');
+echo json_encode([
+    'count' => count($unread_count),
+    'notifications' => $notifications
+]);
+?>
+
 <style>
   .user-img {
     position: absolute;
@@ -75,7 +98,7 @@
           padding-top: calc(5em) !important;
       }
       </style>
-    <nav class="bg-navy w-100 px-2 py-1 position-fixed top-0" id="login-nav">
+   <nav class="bg-navy w-100 px-2 py-1 position-fixed top-0" id="login-nav">
   <div class="d-flex justify-content-between w-100">
     <div>
       <span class="mr-2 text-white"><i class="fa fa-phone mr-1"></i> <?= $_settings->info('contact') ?></span>
@@ -86,14 +109,19 @@
           <!-- Notification Icon -->
           <span class="notification-icon" id="notification-icon">
             <i class="fa fa-bell"></i>
-            <span class="notification-count">3</span> <!-- Change the number dynamically -->
-          </span>
+            <span class="notification-count" id="notification-count">0</span> <!-- Dynamic number -->
+        </span>
           <!-- Dropdown Menu -->
           <div class="notification-dropdown" id="notification-dropdown">
-            <a href="#" class="dropdown-item">New message from Admin</a>
-            <a href="#" class="dropdown-item">Project submission update</a>
-            <a href="#" class="dropdown-item">Reminder: Thesis deadline</a>
-            <a href="#" class="dropdown-item">Other notifications...</a>
+            <?php if ($notification_count > 0): ?>
+              <?php foreach ($notifications as $notification): ?>
+                <a href="<?= base_url ?>notifications.php?id=<?= $notification['id'] ?>" class="dropdown-item">
+                  <?= htmlspecialchars($notification['message']) ?>
+                </a>
+              <?php endforeach; ?>
+            <?php else: ?>
+              <a href="#" class="dropdown-item">No new notifications</a>
+            <?php endif; ?>
           </div>
         </span>
         <span class="mx-2"><img src="<?= validate_image($_settings->userdata('avatar')) ?>" alt="User Avatar" id="student-img-avatar"></span>
@@ -209,15 +237,40 @@
       }
     })
     
-    // Notification Dropdown
-    $('#notification-icon').click(function(){
-      $('#notification-dropdown').toggleClass('show');
+    // Fetch notifications
+    function loadNotifications() {
+        $.ajax({
+            url: 'fetch_notifications.php',
+            method: 'GET',
+            dataType: 'json',
+            success: function(data) {
+                let notificationsHtml = '';
+                $('#notification-count').text(data.count);
+
+                data.notifications.forEach(notification => {
+                    notificationsHtml += `<a href="#" class="dropdown-item">${notification.message}</a>`;
+                });
+
+                $('#notification-dropdown').html(notificationsHtml);
+            }
+        });
+    }
+
+    // Initial load
+    loadNotifications();
+
+    // Reload notifications every minute
+    setInterval(loadNotifications, 60000);
+
+    // Toggle notification dropdown
+    $('#notification-icon').click(function() {
+        $('#notification-dropdown').toggleClass('show');
     });
-    
+
     $(document).click(function(e) {
-      if (!$(e.target).closest('#notification-icon, #notification-dropdown').length) {
-        $('#notification-dropdown').removeClass('show');
-      }
+        if (!$(e.target).closest('#notification-icon, #notification-dropdown').length) {
+            $('#notification-dropdown').removeClass('show');
+        }
     });
-  })
+});
 </script>
