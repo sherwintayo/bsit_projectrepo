@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 25, 2024 at 05:46 PM
+-- Generation Time: Jul 25, 2024 at 06:58 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -193,7 +193,7 @@ INSERT INTO `archive_list` (`id`, `archive_code`, `curriculum_id`, `year`, `titl
 (52, '2023080016', 7, '2023', 'Database Design system', '&lt;p&gt;Testing&lt;/p&gt;', '&lt;p&gt;rhej&lt;/p&gt;&lt;p&gt;hsis&lt;/p&gt;&lt;p&gt;gu&lt;/p&gt;', 'uploads/banners/archive-52.png?v=1691337122', 'uploads/pdf/archive-52.pdf?v=1691337123', 'uploads/files/upload_52.zip?v=1691337124', 'uploads/sql/sql52.sql?v=1691337123', 1, 13, '2023-08-06 23:52:01', NULL),
 (80, '2024070003', 7, '2024', 'House Rental Management System', '&lt;p&gt;ajncljan scbkjab swknc akbckahs&lt;/p&gt;', '&lt;p&gt;1. kjascm asbjk&lt;/p&gt;&lt;p&gt;2. klasnc. d,cne&lt;/p&gt;&lt;p&gt;3. kjaskcbakjek&lt;/p&gt;', '', '', NULL, NULL, 1, 13, '2024-07-16 22:44:58', NULL),
 (83, '2024070001', 7, '2024', 'BSIT Repository', '&lt;p&gt;acajbckjashjdcacs oasshcoahsdlvcajv olabsla olajn jsabdcg oajxbcaljsduc&lt;/p&gt;', '&lt;p&gt;AJSNCLABCLLD&lt;/p&gt;&lt;p&gt;oacnlajbdo&lt;/p&gt;&lt;p&gt;baojsablsjc&lt;/p&gt;', '', '', NULL, NULL, 1, 41, '2024-07-17 21:41:26', NULL),
-(90, '2024070002', 7, '2024', 'Pizza Store Management', '&lt;p&gt;hkasbckdsb&amp;nbsp;&lt;/p&gt;', '&lt;p&gt;dcscscd&lt;/p&gt;', '', '', NULL, NULL, 0, 45, '2024-07-24 19:58:19', NULL);
+(90, '2024070002', 7, '2024', 'Pizza Store Management', '&lt;p&gt;hkasbckdsb&amp;nbsp;&lt;/p&gt;', '&lt;p&gt;dcscscd&lt;/p&gt;', '', '', NULL, NULL, 1, 45, '2024-07-24 19:58:19', NULL);
 
 -- --------------------------------------------------------
 
@@ -262,10 +262,10 @@ INSERT INTO `keyword_search_counter` (`id`, `keyword`, `created_at`) VALUES
 
 CREATE TABLE `notifications` (
   `id` int(11) NOT NULL,
-  `student_id` int(11) NOT NULL,
-  `message` varchar(255) NOT NULL,
-  `date_created` datetime DEFAULT current_timestamp(),
-  `status` varchar(30) DEFAULT 'unread'
+  `student_id` int(11) DEFAULT NULL,
+  `message` text DEFAULT NULL,
+  `date_created` timestamp NOT NULL DEFAULT current_timestamp(),
+  `status` enum('read','unread') DEFAULT 'unread'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -273,10 +273,9 @@ CREATE TABLE `notifications` (
 --
 
 INSERT INTO `notifications` (`id`, `student_id`, `message`, `date_created`, `status`) VALUES
-(1, 45, 'Your project has been published.', '2024-07-25 04:42:18', 'unread'),
-(2, 45, 'Your project with ID 90 has been unpublished.', '2024-07-25 23:30:40', 'unread'),
-(3, 45, 'Your project with ID 90 has been published.', '2024-07-25 23:31:13', 'unread'),
-(4, 45, 'Your project with ID 90 has been unpublished.', '2024-07-25 23:32:58', 'unread');
+(1, 45, 'Your project has been published by the admin.', '2024-07-25 15:50:46', 'read'),
+(2, 45, 'Your project has been unpublished by the admin.', '2024-07-25 16:39:53', 'read'),
+(3, 45, 'Your project has been published by the admin.', '2024-07-25 16:40:32', 'unread');
 
 -- --------------------------------------------------------
 
@@ -465,8 +464,7 @@ ALTER TABLE `curriculum_list`
 -- Indexes for table `notifications`
 --
 ALTER TABLE `notifications`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `student_id` (`student_id`);
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `password_resets`
@@ -527,7 +525,7 @@ ALTER TABLE `curriculum_list`
 -- AUTO_INCREMENT for table `notifications`
 --
 ALTER TABLE `notifications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `password_resets`
@@ -574,12 +572,6 @@ ALTER TABLE `archive_list`
 --
 ALTER TABLE `curriculum_list`
   ADD CONSTRAINT `curriculum_list_ibfk_1` FOREIGN KEY (`program_id`) REFERENCES `program_list` (`id`) ON DELETE CASCADE;
-
---
--- Constraints for table `notifications`
---
-ALTER TABLE `notifications`
-  ADD CONSTRAINT `notifications_ibfk_1` FOREIGN KEY (`student_id`) REFERENCES `student_list` (`id`);
 
 --
 -- Constraints for table `student_list`
