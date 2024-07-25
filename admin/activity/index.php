@@ -1,3 +1,18 @@
+<?php
+// Include the configuration file and database connection class
+require_once('../config.php'); // Adjust the path if needed
+require_once('../classes/DBConnection.php'); // Adjust the path if needed
+
+// Create a new database connection instance
+$db = new DBConnection();
+$connection = $db->conn;
+
+if ($connection->connect_error) {
+    die("Connection failed: " . $connection->connect_error);
+}
+?>
+
+
 <style>
     .img-avatar{
         width:45px;
@@ -38,21 +53,15 @@
 				</thead>
 				<tbody>
 						<?php
-                 
-                     
-                        $servername = "localhost";
-                        $username = "u510162695_bsit_repo";
-                        $password = "1Bsit_repo";
-                        $database = "u510162695_bsit_repo";
-                        $connection = new mysqli($servername, $username, $password, $database);
+                        // $servername = "localhost";
+                        // $username = "u510162695_bsit_repo";
+                        // $password = "1Bsit_repo";
+                        // $database = "u510162695_bsit_repo";
+                        // $connection = new mysqli($servername, $username, $password, $database);
 
-                        if ($connection->connect_error) {
-                            die("Connection failed: " . $connection->connect_error);
-                        }
-                      
-                        
-
-                
+                        // if ($connection->connect_error) {
+                        //     die("Connection failed: " . $connection->connect_error);
+                        // }
 										$query = mysqli_query($connection,"select * from  activity_log ORDER BY activity_log_id DESC")or die(mysql_error());
 										while($row = mysqli_fetch_array($query)){
 									?>

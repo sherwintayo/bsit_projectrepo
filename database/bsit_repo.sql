@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 24, 2024 at 06:49 PM
+-- Generation Time: Jul 25, 2024 at 05:46 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -143,7 +143,9 @@ INSERT INTO `archive_counter` (`id`, `archive_id`, `created_at`) VALUES
 (0, 83, '2024-07-19 07:49:56'),
 (0, 88, '2024-07-19 08:21:39'),
 (0, 88, '2024-07-19 15:15:10'),
-(0, 89, '2024-07-21 03:51:51');
+(0, 89, '2024-07-21 03:51:51'),
+(0, 90, '2024-07-24 20:41:49'),
+(0, 90, '2024-07-24 21:12:29');
 
 -- --------------------------------------------------------
 
@@ -261,10 +263,20 @@ INSERT INTO `keyword_search_counter` (`id`, `keyword`, `created_at`) VALUES
 CREATE TABLE `notifications` (
   `id` int(11) NOT NULL,
   `student_id` int(11) NOT NULL,
-  `message` text NOT NULL,
+  `message` varchar(255) NOT NULL,
   `date_created` datetime DEFAULT current_timestamp(),
-  `status` enum('read','unread') DEFAULT 'unread'
+  `status` varchar(30) DEFAULT 'unread'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `notifications`
+--
+
+INSERT INTO `notifications` (`id`, `student_id`, `message`, `date_created`, `status`) VALUES
+(1, 45, 'Your project has been published.', '2024-07-25 04:42:18', 'unread'),
+(2, 45, 'Your project with ID 90 has been unpublished.', '2024-07-25 23:30:40', 'unread'),
+(3, 45, 'Your project with ID 90 has been published.', '2024-07-25 23:31:13', 'unread'),
+(4, 45, 'Your project with ID 90 has been unpublished.', '2024-07-25 23:32:58', 'unread');
 
 -- --------------------------------------------------------
 
@@ -453,7 +465,8 @@ ALTER TABLE `curriculum_list`
 -- Indexes for table `notifications`
 --
 ALTER TABLE `notifications`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `student_id` (`student_id`);
 
 --
 -- Indexes for table `password_resets`
@@ -514,7 +527,7 @@ ALTER TABLE `curriculum_list`
 -- AUTO_INCREMENT for table `notifications`
 --
 ALTER TABLE `notifications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `password_resets`
@@ -561,6 +574,12 @@ ALTER TABLE `archive_list`
 --
 ALTER TABLE `curriculum_list`
   ADD CONSTRAINT `curriculum_list_ibfk_1` FOREIGN KEY (`program_id`) REFERENCES `program_list` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `notifications`
+--
+ALTER TABLE `notifications`
+  ADD CONSTRAINT `notifications_ibfk_1` FOREIGN KEY (`student_id`) REFERENCES `student_list` (`id`);
 
 --
 -- Constraints for table `student_list`

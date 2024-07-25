@@ -46,5 +46,10 @@ $(function(){
             }
         });
     });
+    $('.update_status').click(function() {
+    var projectId = $(this).attr('data-id');
+    var currentStatus = $(this).attr('data-status');
+    uni_modal("Update Details", "archives/update_status.php?id=" + projectId + "&status=" + currentStatus);
+});
 });
 </script>

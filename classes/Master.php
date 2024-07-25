@@ -277,6 +277,16 @@ Class Master extends DBConnection {
 		} else {
 			$sql = "UPDATE archive_list SET {$data} WHERE id = '{$id}' ";
 		}
+		if (!empty($id) && isset($_POST['status']) && $_POST['status'] == 'published') {
+			// Assuming status is a field in your archive_list table
+			// Update status to published
+			$sql_update = "UPDATE archive_list SET status = 'published' WHERE id = '{$id}'";
+			$this->conn->query($sql_update);
+			
+			// Notify student
+			$student_id = $_POST['student_id'];
+			$this->add_notification($student_id, "Your project has been published.");
+		}
 	
 		$save = $this->conn->query($sql);
 	
@@ -405,40 +415,46 @@ Class Master extends DBConnection {
 
 	
 
-	function add_notification($student_id, $message) {
-		$date_created = date('Y-m-d H:i:s');
-		$status = 'unread';
+	// UPDATE ARCHIVE
+	function update_status() {
+		extract($_POST);
 		
-		$stmt = $this->conn->prepare("INSERT INTO notifications (student_id, message, date_created, status) VALUES (?, ?, ?, ?)");
-		$stmt->bind_param("isss", $student_id, $message, $date_created, $status);
+		// Update the project status
+		$update = $this->conn->query("UPDATE archive_list SET status = '{$status}' WHERE id = '{$id}'");
 		
-		if ($stmt->execute()) {
-			return true;
+		if ($update) {
+			// Notify the student
+			$this->notify_student($id, $status);
+			
+			$resp['status'] = 'success';
+			$resp['msg'] = "Archive status has been successfully updated.";
 		} else {
-			return false;
+			$resp['status'] = 'failed';
+			$resp['msg'] = "An error occurred. Error: " . $this->conn->error;
 		}
+		
+		if ($resp['status'] == 'success')
+			$this->settings->set_flashdata('success', $resp['msg']);
+		
+		return json_encode($resp);
 	}
 	
-	function get_notifications($student_id) {
-		$stmt = $this->conn->prepare("SELECT * FROM notifications WHERE student_id = ? ORDER BY date_created DESC");
-		$stmt->bind_param("i", $student_id);
+	function notify_student($archive_id, $status) {
+		$status_message = $status == 1 ? "published" : "unpublished";
+		
+		// Get the student ID associated with the archive
+		$result = $this->conn->query("SELECT student_id FROM archive_list WHERE id = '{$archive_id}'");
+		$row = $result->fetch_assoc();
+		$student_id = $row['student_id'];
+		
+		// Create the notification message
+		$message = "Your project has been {$status_message} by the admin.";
+		
+		// Insert the notification into the database
+		$stmt = $this->conn->prepare("INSERT INTO notifications (student_id, message) VALUES (?, ?)");
+		$stmt->bind_param("is", $student_id, $message);
 		$stmt->execute();
-		$result = $stmt->get_result();
-		$notifications = array();
-	
-		while ($row = $result->fetch_assoc()) {
-			$notifications[] = $row;
-		}
-		return $notifications;
 	}
-	
-	
-	function mark_notifications_as_read($student_id) {
-		$stmt = $this->conn->prepare("UPDATE notifications SET status = 'read' WHERE student_id = ? AND status = 'unread'");
-		$stmt->bind_param("i", $student_id);
-		$stmt->execute();
-	}
-	
 	
 	
 
