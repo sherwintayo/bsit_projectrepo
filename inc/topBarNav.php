@@ -109,7 +109,7 @@
           ?>
           <div class="dropdown-item" data-id="<?= $notification['id'] ?>">
             <div><?= htmlspecialchars($notification['message']) ?></div>
-            <div class="mark-read" data-id="<?= $notification['id'] ?>">Mark as read</div>
+            <div class="mark-read" data-id="<?= $notification['id'] ?>">Click to Mark as read</div>
           </div>
           <?php endwhile; ?>
         </div>

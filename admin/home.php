@@ -321,6 +321,27 @@ $(function () {
 ?>
 
 
+<?php
+// Fetch the counts for the pie chart
+$sql = "
+    SELECT c.name as curriculum_name, COUNT(a.id) as count
+    FROM archive_list a
+    JOIN curriculum_list c ON a.curriculum_id = c.id
+    WHERE a.status = 1
+    GROUP BY c.name
+";
+$result = $conn->query($sql);
+
+// Prepare the data for the chart
+$curriculum_counts = array();
+while ($row = $result->fetch_assoc()) {
+    $curriculum_counts[] = $row;
+}
+
+$curriculum_counts = json_encode($curriculum_counts);
+?>
+
+
 <script>
 $(function () {
     // Bar Chart
@@ -354,10 +375,52 @@ $(function () {
     });
 
     // Pie Chart
+    // var pieChartCanvas = $('#pieChart').get(0).getContext('2d');
+    // var titles = <?php echo $titles; ?>;
+    // var labels = titles.map(function (title) { return title.title; });
+    // var data = titles.map(function (title) { return title.count; });
+    // var pieData = {
+    //     labels: labels,  
+    //     datasets: [{
+    //         data: data,
+    //         backgroundColor: poolColors(data.length)
+    //     }]
+    // };
+    // var pieOptions = {
+    //     maintainAspectRatio: false,
+    //     responsive: true
+    // };
+    // new Chart(pieChartCanvas, {
+    //     type: 'pie',
+    //     data: pieData,
+    //     options: pieOptions
+    // });
+
+    // function dynamicColors() {
+    //     var r = Math.floor(Math.random() * 255);
+    //     var g = Math.floor(Math.random() * 255);
+    //     var b = Math.floor(Math.random() * 255);
+    //     return "rgba(" + r + "," + g + "," + b + ", 0.5)";
+    // }
+
+    // function poolColors(a) {
+    //     var pool = [];
+    //     for (var i = 0; i < a; i++) {
+    //         pool.push(dynamicColors());
+    //     }
+    //     return pool;
+    //}
+});
+</script>
+<script>
+$(function () {
+    // Pie Chart
     var pieChartCanvas = $('#pieChart').get(0).getContext('2d');
-    var titles = <?php echo $titles; ?>;
-    var labels = titles.map(function (title) { return title.title; });
-    var data = titles.map(function (title) { return title.count; });
+    var curriculumCounts = <?php echo $curriculum_counts; ?>;
+    
+    var labels = curriculumCounts.map(function (item) { return item.curriculum_name; });
+    var data = curriculumCounts.map(function (item) { return item.count; });
+    
     var pieData = {
         labels: labels,
         datasets: [{
@@ -365,10 +428,12 @@ $(function () {
             backgroundColor: poolColors(data.length)
         }]
     };
+    
     var pieOptions = {
         maintainAspectRatio: false,
         responsive: true
     };
+    
     new Chart(pieChartCanvas, {
         type: 'pie',
         data: pieData,
