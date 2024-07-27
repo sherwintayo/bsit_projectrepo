@@ -78,7 +78,6 @@
                         <div class="row">
                             <div class="col-lg-12">
                                 <div class="form-group text-right">
-                                <a href="forgot_password.php" class="btn btn-link">Forgot Password?</a>
                                     <button class="btn btn-default bg-black btn-flat"> Login</button>
                                 </div>
                             </div>

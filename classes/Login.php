@@ -42,7 +42,7 @@ class Login extends DBConnection {
 	}
 	function student_login(){
 		extract($_POST);
-		$qry = $this->conn->query("SELECT *,concat(lastname,', ',firstname,' ',middlename) as fullname from student_list where email = '$email' and `password` = md5('$password') ");
+		$qry = $this->conn->query("SELECT *,concat(lastname,', ',firstname,' ',middlename) as fullname from student_list where email = '$email' and password = md5('$password') ");
 		if($this->conn->error){
 			$resp['status'] = 'failed';
 			$resp['msg'] = "An error occurred while fetching data. Error:". $this->conn->error;
@@ -92,4 +92,3 @@ switch ($action) {
 		echo $auth->index();
 		break;
 }
-

@@ -1,8 +1,6 @@
 <?php
 require_once('../config.php');
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+
 
 Class Master extends DBConnection {
 	private $settings;
@@ -220,15 +218,8 @@ Class Master extends DBConnection {
 		$sql = "INSERT INTO `activity_log` (`username`, `date`, `action`) VALUES ('$username', '$date', '$action')";
 		$this->conn->query($sql); // Assuming $this->conn is your database connection
 	}
-
-
-	function debug_log($message) {
-		file_put_contents('debug.log', $message . PHP_EOL, FILE_APPEND);
-	}
 	
 	function save_archive() {
-
-
 		if (empty($_POST['id'])) {
 			$pref = date("Ym");
 			$code = sprintf("%'.04d", 1);
@@ -245,10 +236,8 @@ Class Master extends DBConnection {
 			$_POST['curriculum_id'] = $this->settings->userdata('curriculum_id');
 		}
 	
-		if (isset($_POST['abstract']))
-			$_POST['abstract'] = htmlentities($_POST['abstract']);
-		if (isset($_POST['members']))
-			$_POST['members'] = htmlentities($_POST['members']);
+		if (isset($_POST['abstract'])) $_POST['abstract'] = htmlentities($_POST['abstract']);
+		if (isset($_POST['members'])) $_POST['members'] = htmlentities($_POST['members']);
 	
 		extract($_POST);
 		$data = "";
@@ -277,12 +266,12 @@ Class Master extends DBConnection {
 		} else {
 			$sql = "UPDATE archive_list SET {$data} WHERE id = '{$id}' ";
 		}
+	
 		if (!empty($id) && isset($_POST['status']) && $_POST['status'] == 'published') {
-			// Assuming status is a field in your archive_list table
 			// Update status to published
 			$sql_update = "UPDATE archive_list SET status = 'published' WHERE id = '{$id}'";
 			$this->conn->query($sql_update);
-			
+	
 			// Notify student
 			$student_id = $_POST['student_id'];
 			$this->add_notification($student_id, "Your project has been published.");
@@ -351,14 +340,15 @@ Class Master extends DBConnection {
 			if (isset($_FILES['zipfiles']) && !empty($_FILES['zipfiles']['name'][0])) {
 				$zip = new ZipArchive();
 				$zipname = 'uploads/zips/archive-' . $aid . '.zip';
-				$zip->open($zipname, ZipArchive::CREATE | ZipArchive::OVERWRITE);
-	
-				foreach ($_FILES['zipfiles']['tmp_name'] as $key => $tmp_name) {
-					$zip->addFile($tmp_name, $_FILES['zipfiles']['name'][$key]);
+				if ($zip->open(base_app . $zipname, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
+					foreach ($_FILES['zipfiles']['tmp_name'] as $key => $tmp_name) {
+						$zip->addFile($tmp_name, $_FILES['zipfiles']['name'][$key]);
+					}
+					$zip->close();
+					$this->conn->query("UPDATE archive_list SET zip_path = CONCAT('{$zipname}', '?v=', unix_timestamp(CURRENT_TIMESTAMP)) WHERE id = '{$aid}' ");
+				} else {
+					$resp['msg'] .= " But Zip failed to create due to unknown reason.";
 				}
-	
-				$zip->close();
-				$this->conn->query("UPDATE archive_list SET zip_path = CONCAT('{$zipname}', '?v=', unix_timestamp(CURRENT_TIMESTAMP)) WHERE id = '{$aid}' ");
 			}
 	
 			// Handle SQL Upload
@@ -382,11 +372,15 @@ Class Master extends DBConnection {
 			$resp['status'] = 'failed';
 			$resp['msg'] = "An error occurred while saving the archive.";
 			$resp['err'] = $this->conn->error . "[{$sql}]";
-			debug_log("SQL Error: " . $this->conn->error);
+			$this->debug_log("SQL Error: " . $this->conn->error);
 		}
 	
 		return json_encode($resp);
 	}
+	
+	
+	
+	
 
 	
 	    //    DELETE ARCHIVE
