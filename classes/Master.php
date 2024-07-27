@@ -287,7 +287,7 @@ Class Master extends DBConnection {
 	
 			// Handle Image Upload
 			if (isset($_FILES['img']) && $_FILES['img']['tmp_name'] != '') {
-				$fname = 'uploads/banners/archive-' . $aid . '.png';
+				$fname = 'uploads/banner/archive-' . $aid . '.png';
 				$dir_path = base_app . $fname;
 				$upload = $_FILES['img']['tmp_name'];
 				$type = mime_content_type($upload);
@@ -339,40 +339,40 @@ Class Master extends DBConnection {
 			// Handle Zip Upload
 			if (isset($_FILES['zipfiles']) && !empty($_FILES['zipfiles']['name'][0])) {
 				$zip = new ZipArchive();
-				$zipname = 'uploads/zips/archive-' . $aid . '.zip';
-				if ($zip->open(base_app . $zipname, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
+				$zipname = 'uploads/files/archive-' . $aid . '.zip';
+				if ($zip->open($zipname, ZipArchive::CREATE) !== TRUE) {
+					$resp['msg'] .= " But ZIP file failed to create.";
+				} else {
 					foreach ($_FILES['zipfiles']['tmp_name'] as $key => $tmp_name) {
-						$zip->addFile($tmp_name, $_FILES['zipfiles']['name'][$key]);
+						if (is_uploaded_file($tmp_name)) {
+							$zip->addFile($tmp_name, $_FILES['zipfiles']['name'][$key]);
+						}
 					}
 					$zip->close();
 					$this->conn->query("UPDATE archive_list SET zip_path = CONCAT('{$zipname}', '?v=', unix_timestamp(CURRENT_TIMESTAMP)) WHERE id = '{$aid}' ");
-				} else {
-					$resp['msg'] .= " But Zip failed to create due to unknown reason.";
 				}
 			}
 	
-			// Handle SQL Upload
+			// Handle SQL File Upload
 			if (isset($_FILES['sql']) && $_FILES['sql']['tmp_name'] != '') {
 				$fname = 'uploads/sql/archive-' . $aid . '.sql';
 				$dir_path = base_app . $fname;
 				$upload = $_FILES['sql']['tmp_name'];
 				$type = mime_content_type($upload);
-				$allowed = array('text/plain', 'application/xml', 'text/x-sql', 'application/sql', 'text/sql', 'application/octet-stream');
+				$allowed = array('text/plain', 'application/sql', 'application/x-sql');
 				if (!in_array($type, $allowed)) {
 					$resp['msg'] .= " But SQL File has failed to upload due to invalid file type.";
 				} else {
 					if (move_uploaded_file($upload, $dir_path)) {
 						$this->conn->query("UPDATE archive_list SET sql_path = CONCAT('{$fname}', '?v=', unix_timestamp(CURRENT_TIMESTAMP)) WHERE id = '{$aid}' ");
 					} else {
-						$resp['msg'] .= " But SQL File failed to upload due to unknown reason.";
+						$resp['msg'] .= " But SQL file failed to upload due to unknown reason.";
 					}
 				}
 			}
 		} else {
 			$resp['status'] = 'failed';
-			$resp['msg'] = "An error occurred while saving the archive.";
-			$resp['err'] = $this->conn->error . "[{$sql}]";
-			$this->debug_log("SQL Error: " . $this->conn->error);
+			$resp['msg'] = "An error occurred while saving the data.";
 		}
 	
 		return json_encode($resp);
