@@ -1,13 +1,5 @@
 <?php
 require_once('../config.php');
-require 'vendor/autoload.php'; // Include PHPMailer
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
-
 Class Users extends DBConnection {
 	private $settings;
 	public function __construct(){
@@ -254,123 +246,28 @@ Class Users extends DBConnection {
 		}
 		return json_encode($resp);
 	}
-
-	public function forgot_password() {
-		$email = isset($_POST['email']) ? $_POST['email'] : '';
-		if (empty($email)) {
-			error_log("Email address is required");
-			return json_encode(['status' => 'error', 'msg' => 'Email address is required']);
-		}
-	
-		// Check if email exists
-		$qry = $this->conn->query("SELECT * FROM `student_list` WHERE email = '{$email}'");
-		if ($qry === false) {
-			error_log("Query error: " . $this->conn->error);
-			return json_encode(['status' => 'error', 'msg' => 'Database query failed']);
-		}
-	
-		if ($qry->num_rows > 0) {
-			$user = $qry->fetch_assoc();
-			$token = bin2hex(random_bytes(50));
-			$expires = date("U") + 1800;
-	
-			// Delete any existing reset requests
-			if ($this->conn->query("DELETE FROM `password_resets` WHERE email = '{$email}'") === false) {
-				error_log("Delete query error: " . $this->conn->error);
-				return json_encode(['status' => 'error', 'msg' => 'Failed to clear previous reset requests']);
-			}
-	
-			// Insert new reset request
-			if ($this->conn->query("INSERT INTO `password_resets` (`email`, `token`, `expires_at`) VALUES ('{$email}', '{$token}', '{$expires}')") === false) {
-				error_log("Insert query error: " . $this->conn->error);
-				return json_encode(['status' => 'error', 'msg' => 'Failed to insert reset request']);
-			}
-	
-			$url = base_url . "reset_password.php?token=" . $token;
-	
-			// Send email
-			$mail = new PHPMailer(true);
-			try {
-				$mail->isSMTP();
-				$mail->Host = 'smtp.gmail.com';
-				$mail->SMTPAuth = true;
-				$mail->Username = 'your-email@gmail.com';
-				$mail->Password = 'your-email-password';
-				$mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-				$mail->Port = 587;
-	
-				$mail->setFrom('your-email@gmail.com', 'Mailer');
-				$mail->addAddress($email);
-	
-				$mail->isHTML(true);
-				$mail->Subject = 'Password Reset Request';
-				$mail->Body    = "We received a password reset request. The link to reset your password is below. If you did not make this request, you can ignore this email.<br><br>Here is your password reset link:<br><a href='$url'>$url</a>";
-				$mail->AltBody = "We received a password reset request. The link to reset your password is below. If you did not make this request, you can ignore this email.\n\nHere is your password reset link:\n$url";
-	
-				$mail->send();
-				return json_encode(['status' => 'success']);
-			} catch (Exception $e) {
-				error_log("Mail error: " . $mail->ErrorInfo);
-				return json_encode(['status' => 'error', 'msg' => "Message could not be sent. Mailer Error: {$mail->ErrorInfo}"]);
-			}
-		} else {
-			return json_encode(['status' => 'error', 'msg' => 'No account found with that email']);
-		}
-	}
-	
-	
-	
-
-
-	public function reset_password() {
-		extract($_POST);
-	
-		$qry = $this->conn->query("SELECT * FROM `password_resets` WHERE token = '{$token}'");
-		if ($qry->num_rows > 0) {
-			$reset = $qry->fetch_assoc();
-			$email = $reset['email'];
-			$expires = $reset['expires_at'];
-	
-			if (time() > $expires) {
-				return json_encode(['status' => 'error', 'msg' => 'The reset link has expired']);
-			}
-	
-			$password = md5($password);
-			$this->conn->query("UPDATE `student_list` SET password = '{$password}' WHERE email = '{$email}'");
-			$this->conn->query("DELETE FROM `password_resets` WHERE email = '{$email}'");
-	
-			return json_encode(['status' => 'success']);
-		} else {
-			return json_encode(['status' => 'error', 'msg' => 'Invalid reset token']);
-		}
-	}
-	
 	
 }
 
 $users = new users();
 $action = !isset($_GET['f']) ? 'none' : strtolower($_GET['f']);
 switch ($action) {
-    case 'save':
-        echo $users->save_users();
-    break;
-    case 'delete':
-        echo $users->delete_users();
-    break;
-    case 'save_student':
-        echo $users->save_student();
-    break;
-    case 'delete_student':
-        echo $users->delete_student();
-    break;
-    case 'verify_student':
-        echo $users->verify_student();
-    break;
-    case 'forgot_password':
-        echo $users->forgot_password();
-    break;
-    default:
-        // echo $sysset->index();
-    break;
+	case 'save':
+		echo $users->save_users();
+	break;
+	case 'delete':
+		echo $users->delete_users();
+	break;
+	case 'save_student':
+		echo $users->save_student();
+	break;
+	case 'delete_student':
+		echo $users->delete_student();
+	break;
+	case 'verify_student':
+		echo $users->verify_student();
+	break;
+	default:
+		// echo $sysset->index();
+		break;
 }
-?>
