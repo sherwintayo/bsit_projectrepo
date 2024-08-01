@@ -159,49 +159,26 @@ if(isset($_GET['id']) && $_GET['id'] > 0){
             ]
         })
         // Archive Form Submit
-        $('#archive-form').submit(function(e){
-            e.preventDefault()
-            var _this = $(this)
-                $(".pop-msg").remove()
-            var el = $("<div>")
-                el.addClass("alert pop-msg my-2")
-                el.hide()
-            start_loader();
-            $.ajax({
-                url:_base_url_+"classes/Master.php?f=save_archive",
-                data: new FormData($(this)[0]),
-                cache: false,
-                contentType: false,
-                processData: false,
-                method: 'POST',
-                type: 'POST',
-                dataType:'json',
-                error:err=>{
-                    console.log(err)
-                //     el.text("An error occured while saving    the data")
-                //    el.addClass("alert-danger")
-                    _this.prepend(el)
-                    el.show('slow')
-                    end_loader()
-                },
-                success:function(resp){
-                    if(resp.status == 'success'){
-                        location.href= "./?page=view_archive&id="+resp.id
-                    }else if(!!resp.msg){
-                        el.text(resp.msg)
-                        el.addClass("alert-danger")
-                        _this.prepend(el)
-                        el.show('show')
-                    }else{
-                        el.text("An error occured while saving the data")
-                        el.addClass("alert-danger")
-                        _this.prepend(el)
-                        el.show('slow')
-                    }
-                    end_loader();
-                    $('html, body').animate({scrollTop: 0},'fast')
-                }
-            })
-        })
-    })
+        $(document).ready(function() {
+    $('#archive-form').on('submit', function(e) {
+        e.preventDefault();
+        $.ajax({
+            url: 'classes/Master.php',
+            type: 'POST',
+            data: new FormData(this),
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                // Handle success response
+                console.log(response);
+                // You may want to redirect or display a message here
+            },
+            error: function(xhr, status, error) {
+                // Handle error response
+                console.error(xhr.responseText);
+            }
+        });
+    });
+});
+
 </script>

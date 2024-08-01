@@ -268,16 +268,6 @@ Class Master extends DBConnection {
 			$sql = "UPDATE archive_list SET {$data} WHERE id = '{$id}' ";
 		}
 	
-		if (!empty($id) && isset($_POST['status']) && $_POST['status'] == 'published') {
-			// Update status to published
-			$sql_update = "UPDATE archive_list SET status = 'published' WHERE id = '{$id}'";
-			$this->conn->query($sql_update);
-	
-			// Notify student
-			$student_id = $_POST['student_id'];
-			$this->add_notification($student_id, "Your project has been published.");
-		}
-	
 		$save = $this->conn->query($sql);
 	
 		if ($save) {
@@ -373,11 +363,12 @@ Class Master extends DBConnection {
 			}
 		} else {
 			$resp['status'] = 'failed';
-			$resp['msg'] = "An error occurred while saving the data.";
+			$resp['msg'] = 'Failed to save archive. Please try again.';
 		}
 	
 		return json_encode($resp);
 	}
+	
 	
 	
 	
