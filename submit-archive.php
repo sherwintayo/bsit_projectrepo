@@ -178,10 +178,10 @@ if(isset($_GET['id']) && $_GET['id'] > 0){
                 dataType:'json',
                 error:err=>{
                     console.log(err)
-                //     el.text("An error occured while saving    the data")
-                //    el.addClass("alert-danger")
+                    el.text("An error occured while saving    the data")
+                   el.addClass("alert-danger")
                     _this.prepend(el)
-                    el.show('fast')
+                    el.show('slow')
                     end_loader()
                 },
                 success:function(resp){
