@@ -253,12 +253,14 @@ Class Master extends DBConnection {
 	
 		// Validate and handle PDF file
 		if (isset($_FILES['pdf']) && !empty($_FILES['pdf']['tmp_name'])) {
-			$type = mime_content_type($_FILES['pdf']['tmp_name']);
+			$upload = $_FILES['pdf']['tmp_name'];
+			$type = mime_content_type($upload);
 			if ($type != "application/pdf") {
 				$resp['msg'] = "Invalid Document File Type.";
 				return json_encode($resp);
 			}
 		}
+		
 	
 		// Prepare data for insert or update
 		foreach ($_POST as $k => $v) {
@@ -365,6 +367,8 @@ Class Master extends DBConnection {
 			}
 		} else {
 			$resp['error'] = $this->conn->error;
+			$resp['msg'] .= " SQL Error: " . $this->conn->error;
+			return json_encode($resp);
 			if (empty($id)) {
 				$this->conn->query("DELETE FROM archive_list WHERE id = '{$aid}' ");
 			}
