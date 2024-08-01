@@ -1,27 +1,27 @@
+
 <?php 
 if(isset($_GET['id']) && $_GET['id'] > 0){
-    $qry = $conn->query("SELECT * FROM `archive_list` WHERE id = '{$conn->real_escape_string($_GET['id'])}'");
+    $qry = $conn->query("SELECT * FROM archive_list where id = '{$_GET['id']}'");
     if($qry->num_rows){
         foreach($qry->fetch_array() as $k => $v){
             if(!is_numeric($k))
-                $$k = $v;
+            $$k = $v;
         }
     }
     if(isset($student_id)){
         if($student_id != $_settings->userdata('id')){
-            echo "<script> alert('You don\'t have access to this page'); location.replace('./'); </script>";
-            exit;
+            echo "<script> alert('You don\'t have an access to this page'); location.replace('./'); </script>";
         }
     }
 }
 ?>
 <style>
-    .banner-img {
-        object-fit: scale-down;
-        object-position: center center;
-        height: 30vh;
-        width: 100%;
-    }
+    .banner-img{
+		object-fit:scale-down;
+		object-position:center center;
+        height:30vh;
+        width:calc(100%);
+	}
 </style>
 <div class="content py-4">
     <div class="card card-outline card-primary shadow rounded-0">
@@ -36,7 +36,7 @@ if(isset($_GET['id']) && $_GET['id'] > 0){
                         <div class="col-lg-6">
                             <div class="form-group">
                                 <label for="title" class="control-label text-navy">Project Title</label>
-                                <input type="text" name="title" id="title" autofocus placeholder="Project Title" class="form-control form-control-border" value="<?= isset($title) ? $title : "" ?>" required>
+                                <input type="text" name="title" id="title" autofocus placeholder="Project Title" class="form-control form-control-border" value="<?= isset($title) ?$title : "" ?>" required>
                             </div>
                         </div>
                     </div>
@@ -46,9 +46,9 @@ if(isset($_GET['id']) && $_GET['id'] > 0){
                                 <label for="year" class="control-label text-navy">Year</label>
                                 <select name="year" id="year" class="form-control form-control-border" required>
                                     <?php 
-                                        for($i= 0; $i < 51; $i++):
+                                        for($i= 0;$i < 51; $i++):
                                     ?>
-                                    <option <?= isset($year) && $year == date("Y", strtotime(date("Y") . " -{$i} years")) ? "selected" : "" ?>><?= date("Y", strtotime(date("Y") . " -{$i} years")) ?></option>
+                                    <option <?= isset($year) && $year == date("Y",strtotime(date("Y")." -{$i} years")) ? "selected" : "" ?>><?= date("Y",strtotime(date("Y")." -{$i} years")) ?></option>
                                     <?php endfor; ?>
                                 </select>
                             </div>
@@ -74,11 +74,11 @@ if(isset($_GET['id']) && $_GET['id'] > 0){
                         <div class="col-lg-12">
                             <div class="form-group">
                                 <label for="img" class="control-label text-muted">Project Image/Banner Image</label>
-                                <input type="file" id="img" name="img" class="form-control form-control-border" accept="image/png,image/jpeg, image/jpg" onchange="displayImg(this,$(this))" <?= !isset($id) ? "required" : "" ?>>
+                                <input type="file" id="img" name="img" class="form-control form-control-border" accept="image/png,image/jpeg" onchange="displayImg(this,$(this))" <?= !isset($id) ? "required" : "" ?>>
                             </div>
 
                             <div class="form-group text-center">
-                                <img src="<?= validate_image(isset($banner_path) ? $banner_path : "") ?>" alt="Project Banner" id="cimg" class="img-fluid banner-img bg-gradient-dark border">
+                                <img src="<?= validate_image(isset($banner_path) ? $banner_path : "") ?>" alt="My Avatar" id="cimg" class="img-fluid banner-img bg-gradient-dark border">
                             </div>
                         </div>
                     </div>
@@ -93,15 +93,16 @@ if(isset($_GET['id']) && $_GET['id'] > 0){
 					<div class="row">
                         <div class="col-lg-12">
                             <div class="form-group">
-                                <label for="zipfiles" class="control-label text-muted">Create Zip of Multiple Uploaded Files</label>
-                                <input type="file" id="zipfiles" name="zipfiles[]" class="form-control form-control-border" multiple>
+                                <label for="pdf" class="control-label text-muted">Create Zip of Multiples Uploded Files</label>
+                                <input type="file" id="zipfiles" name="zipfiles[]" class="form-control form-control-border" multiple >
+								
                             </div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-lg-12">
                             <div class="form-group">
-                                <label for="sql" class="control-label text-muted">SQL File Only</label>
+                                <label for="pdf" class="control-label text-muted">SQL File Only</label>
                                 <input type="file" id="sql" name="sql" class="form-control form-control-border" accept="text/plain,application/xml,text/x-sql,application/sql,text/sql,application/octet-stream">
                             </div>
                         </div>
@@ -109,8 +110,8 @@ if(isset($_GET['id']) && $_GET['id'] > 0){
                     <div class="row">
                         <div class="col-lg-12">
                             <div class="form-group text-center">
-                                <button class="btn btn-default bg-navy btn-flat">Submit</button>
-                                <a href="./?page=profile" class="btn btn-light border btn-flat">Cancel</a>
+                                <button class="btn btn-default bg-navy btn-flat"> Submit</button>
+                                <a href="./?page=profile" class="btn btn-light border btn-flat"> Cancel</a>
                             </div>
                         </div>
                     </div>
@@ -120,17 +121,18 @@ if(isset($_GET['id']) && $_GET['id'] > 0){
     </div>
 </div>
 <script>
-    function displayImg(input, _this) {
-        if (input.files && input.files[0]) {
-            var reader = new FileReader();
-            reader.onload = function (e) {
-                $('#cimg').attr('src', e.target.result);
-            }
-            reader.readAsDataURL(input.files[0]);
-        } else {
+    function displayImg(input,_this) {
+	    if (input.files && input.files[0]) {
+	        var reader = new FileReader();
+	        reader.onload = function (e) {
+	        	$('#cimg').attr('src', e.target.result);
+	        }
+
+	        reader.readAsDataURL(input.files[0]);
+	    }else{
             $('#cimg').attr('src', "<?= validate_image(isset($avatar) ? $avatar : "") ?>");
         }
-    }
+	}
     $(function(){
         $('.summernote').summernote({
             height: 200,
@@ -150,57 +152,56 @@ if(isset($_GET['id']) && $_GET['id'] > 0){
             height: 200,
             toolbar: [
                 [ 'font', [ 'bold', 'italic', 'clear'] ],
-                [ 'fontname', [ 'fontname' ] ],
+                [ 'fontname', [ 'fontname' ] ]
                 [ 'color', [ 'color' ] ],
                 [ 'para', [ 'ol', 'ul' ] ],
                 [ 'view', [ 'undo', 'redo', 'help' ] ]
             ]
         })
-
         // Archive Form Submit
         $('#archive-form').submit(function(e){
             e.preventDefault()
             var _this = $(this)
-            $(".pop-msg").remove()
+                $(".pop-msg").remove()
             var el = $("<div>")
-            el.addClass("alert pop-msg my-2")
-            el.hide()
+                el.addClass("alert pop-msg my-2")
+                el.hide()
             start_loader();
             $.ajax({
-                url: _base_url_ + "classes/Master.php?f=save_archive",
+                url:_base_url_+"classes/Master.php?f=save_archive",
                 data: new FormData($(this)[0]),
                 cache: false,
                 contentType: false,
                 processData: false,
                 method: 'POST',
                 type: 'POST',
-                dataType: 'json',
-                error: err => {
+                dataType:'json',
+                error:err=>{
                     console.log(err)
-                    el.text("An error occurred while saving the data")
-                    el.addClass("alert-danger")
+                //     el.text("An error occured while saving    the data")
+                //    el.addClass("alert-danger")
                     _this.prepend(el)
                     el.show('slow')
                     end_loader()
                 },
-                success: function(resp) {
-                    if (resp.status == 'success') {
-                        location.href = "./?page=view_archive&id=" + resp.id
-                    } else if (resp.msg) {
+                success:function(resp){
+                    if(resp.status == 'success'){
+                        location.href= "./?page=view_archive&id="+resp.id
+                    }else if(!!resp.msg){
                         el.text(resp.msg)
                         el.addClass("alert-danger")
                         _this.prepend(el)
                         el.show('show')
-                    } else {
-                        el.text("An error occurred while saving the data")
+                    }else{
+                        el.text("An error occured while saving the data")
                         el.addClass("alert-danger")
                         _this.prepend(el)
                         el.show('slow')
                     }
                     end_loader();
+                    $('html, body').animate({scrollTop: 0},'fast')
                 }
             })
         })
-
     })
 </script>
