@@ -1,9 +1,10 @@
 <?php 
 if(isset($_GET['id']) && $_GET['id'] > 0){
-    $qry = $conn->query("SELECT * FROM archive_list where id = '{$_GET['id']}'");
+    $qry = $conn->query("SELECT * FROM `archive_list` where id = '{$_GET['id']}'");
     if($qry->num_rows){
         foreach($qry->fetch_array() as $k => $v){
-            if(!is_numeric($k)) $$k = $v;
+            if(!is_numeric($k))
+            $$k = $v;
         }
     }
     if(isset($student_id)){
@@ -15,11 +16,11 @@ if(isset($_GET['id']) && $_GET['id'] > 0){
 ?>
 <style>
     .banner-img{
-        object-fit:scale-down;
-        object-position:center center;
+		object-fit:scale-down;
+		object-position:center center;
         height:30vh;
         width:calc(100%);
-    }
+	}
 </style>
 <div class="content py-4">
     <div class="card card-outline card-primary shadow rounded-0">
@@ -34,9 +35,11 @@ if(isset($_GET['id']) && $_GET['id'] > 0){
                         <div class="col-lg-6">
                             <div class="form-group">
                                 <label for="title" class="control-label text-navy">Project Title</label>
-                                <input type="text" name="title" id="title" autofocus placeholder="Project Title" class="form-control form-control-border" value="<?= isset($title) ? $title : "" ?>" required>
+                                <input type="text" name="title" id="title" autofocus placeholder="Project Title" class="form-control form-control-border" value="<?= isset($title) ?$title : "" ?>" required>
                             </div>
                         </div>
+                    </div>
+                    <div class="row">
                         <div class="col-lg-6">
                             <div class="form-group">
                                 <label for="year" class="control-label text-navy">Year</label>
@@ -72,6 +75,7 @@ if(isset($_GET['id']) && $_GET['id'] > 0){
                                 <label for="img" class="control-label text-muted">Project Image/Banner Image</label>
                                 <input type="file" id="img" name="img" class="form-control form-control-border" accept="image/png,image/jpeg, image/jpg" onchange="displayImg(this,$(this))" <?= !isset($id) ? "required" : "" ?>>
                             </div>
+
                             <div class="form-group text-center">
                                 <img src="<?= validate_image(isset($banner_path) ? $banner_path : "") ?>" alt="My Avatar" id="cimg" class="img-fluid banner-img bg-gradient-dark border">
                             </div>
@@ -85,19 +89,19 @@ if(isset($_GET['id']) && $_GET['id'] > 0){
                             </div>
                         </div>
                     </div>
-                    <div class="row">
+					<div class="row">
                         <div class="col-lg-12">
                             <div class="form-group">
-                                <label for="zipfiles" class="control-label text-muted">Project ZIP File</label>
-                                <input type="file" id="zipfiles" name="zipfiles[]" class="form-control form-control-border" accept=".zip" multiple>
+                                <label for="pdf" class="control-label text-muted">Create Zip of Multiple Uploaded Files</label>
+                                <input type="file" id="zipfiles" name="zipfiles[]" class="form-control form-control-border" multiple >
                             </div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-lg-12">
                             <div class="form-group">
-                                <label for="sql" class="control-label text-muted">SQL File Only</label>
-                                <input type="file" id="sql" name="sql" class="form-control form-control-border" accept="text/plain,application/sql,.sql">
+                                <label for="pdf" class="control-label text-muted">SQL File Only</label>
+                                <input type="file" id="sql" name="sql" class="form-control form-control-border" accept="text/plain,application/xml,text/x-sql,application/sql,text/sql,application/octet-stream">
                             </div>
                         </div>
                     </div>
@@ -116,16 +120,16 @@ if(isset($_GET['id']) && $_GET['id'] > 0){
 </div>
 <script>
     function displayImg(input,_this) {
-        if (input.files && input.files[0]) {
-            var reader = new FileReader();
-            reader.onload = function (e) {
-                $('#cimg').attr('src', e.target.result);
-            }
-            reader.readAsDataURL(input.files[0]);
-        } else {
+	    if (input.files && input.files[0]) {
+	        var reader = new FileReader();
+	        reader.onload = function (e) {
+	        	$('#cimg').attr('src', e.target.result);
+	        }
+	        reader.readAsDataURL(input.files[0]);
+	    } else {
             $('#cimg').attr('src', "<?= validate_image(isset($avatar) ? $avatar : "") ?>");
         }
-    }
+	}
     $(function(){
         $('.summernote').summernote({
             height: 200,
@@ -151,14 +155,15 @@ if(isset($_GET['id']) && $_GET['id'] > 0){
                 [ 'view', [ 'undo', 'redo', 'help' ] ]
             ]
         })
+
         // Archive Form Submit
         $('#archive-form').submit(function(e){
             e.preventDefault()
             var _this = $(this)
-            $(".pop-msg").remove()
+                $(".pop-msg").remove()
             var el = $("<div>")
-            el.addClass("alert pop-msg my-2")
-            el.hide()
+                el.addClass("alert pop-msg my-2")
+                el.hide()
             start_loader();
             $.ajax({
                 url:_base_url_+"classes/Master.php?f=save_archive",
