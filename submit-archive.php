@@ -94,7 +94,7 @@ if(isset($_GET['id']) && $_GET['id'] > 0){
                         <div class="col-lg-12">
                             <div class="form-group">
                                 <label for="zipfiles" class="control-label text-muted">Create Zip of Multiples Uploded Files</label>
-                                <input type="file" id="zipfiles" name="zipfiles" class="form-control form-control-border" multiple >
+                                <input type="file" id="zipfiles" name="zipfiles[]" class="form-control form-control-border" multiple accept=".zip" >
 								
                             </div>
                         </div>
