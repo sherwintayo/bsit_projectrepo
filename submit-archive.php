@@ -122,17 +122,17 @@ if(isset($_GET['id']) && $_GET['id'] > 0){
 </div>
 <script>
     function displayImg(input,_this) {
-	    if (input.files && input.files[0]) {
-	        var reader = new FileReader();
-	        reader.onload = function (e) {
-	        	$('#cimg').attr('src', e.target.result);
-	        }
-
-	        reader.readAsDataURL(input.files[0]);
-	    }else{
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                $('#cimg').attr('src', e.target.result);
+            }
+            reader.readAsDataURL(input.files[0]);
+        } else {
             $('#cimg').attr('src', "<?= validate_image(isset($avatar) ? $avatar : "") ?>");
         }
-	}
+    }
+
     $(function(){
         $('.summernote').summernote({
             height: 200,
@@ -147,38 +147,53 @@ if(isset($_GET['id']) && $_GET['id'] > 0){
                 ['insert', ['link', 'picture']],
                 [ 'view', [ 'undo', 'redo', 'help' ] ]
             ]
-        })
+        });
         $('.summernote-list-only').summernote({
             height: 200,
             toolbar: [
                 [ 'font', [ 'bold', 'italic', 'clear'] ],
-                [ 'fontname', [ 'fontname' ] ]
+                [ 'fontname', [ 'fontname' ] ],
                 [ 'color', [ 'color' ] ],
                 [ 'para', [ 'ol', 'ul' ] ],
                 [ 'view', [ 'undo', 'redo', 'help' ] ]
             ]
-        })
-        // Archive Form Submit
-        $(document).ready(function() {
-    $('#archive-form').on('submit', function(e) {
-        e.preventDefault();
-        $.ajax({
-            url: 'classes/Master.php',
-            type: 'POST',
-            data: new FormData(this),
-            processData: false,
-            contentType: false,
-            success: function(response) {
-                // Handle success response
-                console.log(response);
-                // You may want to redirect or display a message here
-            },
-            error: function(xhr, status, error) {
-                // Handle error response
-                console.error(xhr.responseText);
-            }
+        });
+
+        // AJAX form submission
+        $('#archive-form').on('submit', function(e){
+            e.preventDefault();
+            var _this = $(this);
+            $(".pop-msg").remove();
+            var el = $("<div>").addClass("alert pop-msg my-2").hide();
+            start_loader();
+            $.ajax({
+                url: 'classes/Master.php?f=save_archive',
+                data: new FormData(_this[0]),
+                cache: false,
+                contentType: false,
+                processData: false,
+                method: 'POST',
+                dataType: 'json',
+                success: function(resp) {
+                    if (resp.status == 'success') {
+                        location.href = "./?page=view_archive&id=" + resp.id;
+                    } else if (resp.msg) {
+                        el.text(resp.msg).addClass("alert-danger");
+                        _this.prepend(el).show('slow');
+                    } else {
+                        el.text("An error occurred while saving the data").addClass("alert-danger");
+                        _this.prepend(el).show('slow');
+                    }
+                    end_loader();
+                    $('html, body').animate({scrollTop: 0}, 'fast');
+                },
+                error: function(err) {
+                    console.error(err);
+                    el.text("An error occurred while saving the data").addClass("alert-danger");
+                    _this.prepend(el).show('slow');
+                    end_loader();
+                }
+            });
         });
     });
-});
-
 </script>
