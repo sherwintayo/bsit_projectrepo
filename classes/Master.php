@@ -220,13 +220,16 @@ Class Master extends DBConnection {
 	}
 
 
-
 	function save_archive() {
+		// Initialize response array
+		$resp = ['status' => 'failed', 'msg' => 'An error occurred while saving the data.'];
+	
+		// Handle new archive code generation
 		if (empty($_POST['id'])) {
 			$pref = date("Ym");
 			$code = sprintf("%'.04d", 1);
 			while (true) {
-				$check = $this->conn->query("SELECT * FROM archive_list WHERE archive_code = '{$pref}{$code}'")->num_rows;
+				$check = $this->conn->query("SELECT 1 FROM archive_list WHERE archive_code = '{$pref}{$code}'")->num_rows;
 				if ($check > 0) {
 					$code = sprintf("%'.04d", abs($code) + 1);
 				} else {
@@ -238,149 +241,65 @@ Class Master extends DBConnection {
 			$_POST['curriculum_id'] = $this->settings->userdata('curriculum_id');
 		}
 	
-		if (isset($_POST['abstract'])) $_POST['abstract'] = htmlentities($_POST['abstract']);
-		if (isset($_POST['members'])) $_POST['members'] = htmlentities($_POST['members']);
-	
-		extract($_POST);
-		$data = "";
-	
-		// Handle PDF Upload
-		if (isset($_FILES['pdf']) && !empty($_FILES['pdf']['tmp_name'])) {
-			$type = mime_content_type($_FILES['pdf']['tmp_name']);
-			if ($type != "application/pdf") {
-				$resp['status'] = "failed";
-				$resp['msg'] = "Invalid Document File Type.";
-				return json_encode($resp);
-			}
-		}
-	
+		// Sanitize and prepare data for query
 		foreach ($_POST as $k => $v) {
-			if (!in_array($k, array('id')) && !is_array($_POST[$k])) {
-				if (!is_numeric($v))
-					$v = $this->conn->real_escape_string($v);
-				if (!empty($data)) $data .= ",";
-				$data .= " {$k}='{$v}' ";
+			if (!in_array($k, ['id']) && !is_array($v)) {
+				$_POST[$k] = $this->conn->real_escape_string(htmlentities($v));
 			}
 		}
 	
-		if (empty($id)) {
-			$sql = "INSERT INTO archive_list SET {$data} ";
-		} else {
-			$sql = "UPDATE archive_list SET {$data} WHERE id = '{$id}' ";
-		}
+		// Generate SQL query
+		$data = implode(', ', array_map(
+			fn($k, $v) => "`{$k}`='{$v}'",
+			array_keys($_POST),
+			$_POST
+		));
 	
-		if (!empty($id) && isset($_POST['status']) && $_POST['status'] == 'published') {
-			// Update status to published
-			$sql_update = "UPDATE archive_list SET status = 'published' WHERE id = '{$id}'";
-			$this->conn->query($sql_update);
+		$sql = empty($_POST['id'])
+			? "INSERT INTO archive_list SET {$data}"
+			: "UPDATE archive_list SET {$data} WHERE id = '{$_POST['id']}'";
 	
-			// Notify student
-			$student_id = $_POST['student_id'];
-			$this->add_notification($student_id, "Your project has been published.");
-		}
-	
-		$save = $this->conn->query($sql);
-	
-		if ($save) {
-			$aid = !empty($id) ? $id : $this->conn->insert_id;
+		if ($this->conn->query($sql)) {
+			$aid = empty($_POST['id']) ? $this->conn->insert_id : $_POST['id'];
 			$resp['status'] = 'success';
 			$resp['id'] = $aid;
-			$resp['msg'] = empty($id) ? "Archive was successfully submitted" : "Archive details were updated successfully.";
+			$resp['msg'] = empty($_POST['id']) ? "Archive was successfully submitted" : "Archive details were updated successfully.";
 	
-			// Handle Image Upload
-			if (isset($_FILES['img']) && $_FILES['img']['tmp_name'] != '') {
-				$fname = 'uploads/banner/archive-' . $aid . '.png';
-				$dir_path = base_app . $fname;
-				$upload = $_FILES['img']['tmp_name'];
-				$type = mime_content_type($upload);
-				$allowed = array('image/png', 'image/jpeg', 'image/jpg');
-				if (!in_array($type, $allowed)) {
-					$resp['msg'] .= " But Image failed to upload due to invalid file type.";
-				} else {
-					list($width, $height) = getimagesize($upload);
-					$new_width = 1280;
-					$new_height = 720;
-					$t_image = imagecreatetruecolor($new_width, $new_height);
-					imagealphablending($t_image, false);
-					imagesavealpha($t_image, true);
-					$gdImg = ($type == 'image/png') ? imagecreatefrompng($upload) : imagecreatefromjpeg($upload);
-					imagecopyresampled($t_image, $gdImg, 0, 0, 0, 0, $new_width, $new_height, $width, $height);
-					if ($gdImg) {
-						if (is_file($dir_path))
-							unlink($dir_path);
-						$uploaded_img = imagepng($t_image, $dir_path);
-						imagedestroy($gdImg);
-						imagedestroy($t_image);
-					} else {
-						$resp['msg'] .= " But Image failed to upload due to unknown reason.";
-					}
-				}
-				if (isset($uploaded_img)) {
-					$this->conn->query("UPDATE archive_list SET banner_path = CONCAT('{$fname}', '?v=', unix_timestamp(CURRENT_TIMESTAMP)) WHERE id = '{$aid}' ");
-				}
-			}
+			// Handle file uploads
+			$uploadPaths = [
+				'img' => ['uploads/banner/archive-' . $aid . '.png', ['image/png', 'image/jpeg']],
+				'pdf' => ['uploads/pdf/archive-' . $aid . '.pdf', ['application/pdf']],
+				'zipfiles' => ['uploads/files/archive-' . $aid . '.zip', []],
+				'sql' => ['uploads/sql/archive-' . $aid . '.sql', ['text/plain', 'application/sql']]
+			];
 	
-			// Handle PDF Upload
-			if (isset($_FILES['pdf']) && $_FILES['pdf']['tmp_name'] != '') {
-				$fname = 'uploads/pdf/archive-' . $aid . '.pdf';
-				$dir_path = base_app . $fname;
-				$upload = $_FILES['pdf']['tmp_name'];
-				$type = mime_content_type($upload);
-				$allowed = array('application/pdf');
-				if (!in_array($type, $allowed)) {
-					$resp['msg'] .= " But Document File has failed to upload due to invalid file type.";
-				} else {
-					if (move_uploaded_file($upload, $dir_path)) {
-						$this->conn->query("UPDATE archive_list SET document_path = CONCAT('{$fname}', '?v=', unix_timestamp(CURRENT_TIMESTAMP)) WHERE id = '{$aid}' ");
-					} else {
-						$resp['msg'] .= " But Document failed to upload due to unknown reason.";
-					}
-				}
-			}
+			foreach ($uploadPaths as $fileInput => [$path, $allowedTypes]) {
+				if (isset($_FILES[$fileInput]) && !empty($_FILES[$fileInput]['tmp_name'])) {
+					$upload = $_FILES[$fileInput]['tmp_name'];
+					$type = mime_content_type($upload);
 	
-			// Handle Zip Upload
-			if (isset($_FILES['zipfiles']) && !empty($_FILES['zipfiles']['name'][0])) {
-				$zip = new ZipArchive();
-				$zipname = 'uploads/files/archive-' . $aid . '.zip';
-				if ($zip->open($zipname, ZipArchive::CREATE) !== TRUE) {
-					$resp['msg'] .= " But ZIP file failed to create.";
-				} else {
-					foreach ($_FILES['zipfiles']['tmp_name'] as $key => $tmp_name) {
-						if (is_uploaded_file($tmp_name)) {
-							$zip->addFile($tmp_name, $_FILES['zipfiles']['name'][$key]);
+					if (empty($allowedTypes) || in_array($type, $allowedTypes)) {
+						if (move_uploaded_file($upload, base_app . $path)) {
+							$this->conn->query("UPDATE archive_list SET {$fileInput}_path = CONCAT('{$path}', '?v=', unix_timestamp(CURRENT_TIMESTAMP)) WHERE id = '{$aid}' ");
+						} else {
+							$resp['msg'] .= " But {$fileInput} file failed to upload.";
 						}
+					} else {
+						$resp['msg'] .= " But {$fileInput} file has an invalid type.";
 					}
-					$zip->close();
-					$this->conn->query("UPDATE archive_list SET zip_path = CONCAT('{$zipname}', '?v=', unix_timestamp(CURRENT_TIMESTAMP)) WHERE id = '{$aid}' ");
 				}
 			}
 	
-			// Handle SQL File Upload
-			if (isset($_FILES['sql']) && $_FILES['sql']['tmp_name'] != '') {
-				$fname = 'uploads/sql/archive-' . $aid . '.sql';
-				$dir_path = base_app . $fname;
-				$upload = $_FILES['sql']['tmp_name'];
-				$type = mime_content_type($upload);
-				$allowed = array('text/plain', 'application/sql', 'application/x-sql');
-				if (!in_array($type, $allowed)) {
-					$resp['msg'] .= " But SQL File has failed to upload due to invalid file type.";
-				} else {
-					if (move_uploaded_file($upload, $dir_path)) {
-						$this->conn->query("UPDATE archive_list SET sql_path = CONCAT('{$fname}', '?v=', unix_timestamp(CURRENT_TIMESTAMP)) WHERE id = '{$aid}' ");
-					} else {
-						$resp['msg'] .= " But SQL file failed to upload due to unknown reason.";
-					}
-				}
+			// Notify student if status is published
+			if (!empty($_POST['id']) && isset($_POST['status']) && $_POST['status'] === 'published') {
+				$this->conn->query("UPDATE archive_list SET status = 'published' WHERE id = '{$aid}'");
+				$this->add_notification($_POST['student_id'], "Your project has been published.");
 			}
-		} else {
-			$resp['status'] = 'failed';
-			$resp['msg'] = "An error occurred while saving the data.";
 		}
 	
 		return json_encode($resp);
 	}
 	
-
 	
 	
 	
