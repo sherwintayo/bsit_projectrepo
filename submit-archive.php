@@ -195,7 +195,7 @@ if(isset($_GET['id']) && $_GET['id'] > 0){
                         el.text("An error occurred while saving the data")
                         el.addClass("alert-danger")
                         _this.prepend(el)
-                        el.show('show')
+                        el.show('slow')
                     }
                     end_loader();
                 }
