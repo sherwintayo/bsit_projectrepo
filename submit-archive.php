@@ -97,7 +97,7 @@ if(isset($_GET['id']) && $_GET['id'] > 0){
                         <div class="col-lg-12">
                             <div class="form-group">
                                 <label for="sql" class="control-label text-muted">SQL File Only</label>
-                                <input type="file" id="sql" name="sql" class="form-control form-control-border" accept="text/plain,application/sql">
+                                <input type="file" id="sql" name="sql" class="form-control form-control-border" accept="text/plain,application/sql,.sql">
                             </div>
                         </div>
                     </div>
