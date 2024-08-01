@@ -243,14 +243,14 @@ Class Master extends DBConnection {
 		$data = "";
 	
 		// Handle PDF Upload
-		if (isset($_FILES['pdf']) && !empty($_FILES['pdf']['tmp_name'])) {
-			$type = mime_content_type($_FILES['pdf']['tmp_name']);
-			if ($type != "application/pdf") {
-				$resp['status'] = "failed";
-				$resp['msg'] = "Invalid Document File Type.";
-				return json_encode($resp);
-			}
-		}
+		// if (isset($_FILES['pdf']) && !empty($_FILES['pdf']['tmp_name'])) {
+		// 	$type = mime_content_type($_FILES['pdf']['tmp_name']);
+		// 	if ($type != "application/pdf") {
+		// 		$resp['status'] = "failed";
+		// 		$resp['msg'] = "Invalid Document File Type.";
+		// 		return json_encode($resp);
+		// 	}
+		// }
 	
 		foreach ($_POST as $k => $v) {
 			if (!in_array($k, array('id')) && !is_array($_POST[$k])) {
