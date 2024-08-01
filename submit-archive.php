@@ -158,6 +158,7 @@ if(isset($_GET['id']) && $_GET['id'] > 0){
         })
 
         // Archive Form Submit
+        // Archive Form Submit
         $('#archive-form').submit(function(e){
             e.preventDefault();
             var _this = $(this);
@@ -203,5 +204,4 @@ if(isset($_GET['id']) && $_GET['id'] > 0){
             });
         });
     });
- 
 </script>
