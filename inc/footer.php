@@ -68,7 +68,7 @@
         </strong>
         All rights reserved.
         <div class="float-right d-none d-sm-inline-block">
-          <b><?php echo $_settings->info('short_name') ?> (by: BSIT Students Batch 2024-2025(Modified by: Sherwin Ciervo))</b> v1.1
+          <b><?php echo $_settings->info('short_name') ?> (Modified by: Sherwin Ciervo)</b> v2.0
         </div>
       </div>
       </footer>
