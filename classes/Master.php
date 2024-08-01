@@ -349,7 +349,7 @@ Class Master extends DBConnection {
 				$dir_path = base_app . $fname;
 				$upload = $_FILES['sql']['tmp_name'];
 				$type = mime_content_type($upload);
-				$allowed = array('text/plain', 'application/sql', 'application/x-sql');
+				$allowed = array('application/.sql');
 				if (!in_array($type, $allowed)) {
 					$resp['msg'] .= " But SQL File has failed to upload due to invalid file type.";
 				} else {

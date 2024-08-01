@@ -103,7 +103,7 @@ if(isset($_GET['id']) && $_GET['id'] > 0){
                         <div class="col-lg-12">
                             <div class="form-group">
                                 <label for="sql" class="control-label text-muted">SQL File Only</label>
-                                <input type="file" id="sql" name="sql" class="form-control form-control-border" accept="text/plain,application/xml,text/x-sql,application/sql,text/sql,application/octet-stream">
+                                <input type="file" id="sql" name="sql" class="form-control form-control-border" accept="application/.sql" <?= !isset($id) ? "required" : "" ?>>
                             </div>
                         </div>
                     </div>
