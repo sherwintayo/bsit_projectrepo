@@ -341,7 +341,7 @@ Class Master extends DBConnection {
 						}
 					}
 					if ($zip->close()) {
-						$this->conn->query("UPDATE archive_list SET zip_path = CONCAT('{$zipname}', '?v=', unix_timestamp(CURRENT_TIMESTAMP)) WHERE id = '{$aid}' ");
+						$this->conn->query("UPDATE archive_list SET folder_path = CONCAT('{$zipname}', '?v=', unix_timestamp(CURRENT_TIMESTAMP)) WHERE id = '{$aid}' ");
 					} else {
 						$resp['msg'] .= " But ZIP file failed to close properly.";
 					}
