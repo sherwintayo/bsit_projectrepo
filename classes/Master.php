@@ -222,135 +222,141 @@ Class Master extends DBConnection {
 
 
 	function save_archive() {
-        if (empty($_POST['id'])) {
-            $pref = date("Ym");
-            $code = sprintf("%'.04d", 1);
-            while (true) {
-                $check = $this->conn->query("SELECT * FROM archive_list WHERE archive_code = '{$pref}{$code}'")->num_rows;
-                if ($check > 0) {
-                    $code = sprintf("%'.04d", abs($code) + 1);
-                } else {
-                    break;
-                }
-            }
-            $_POST['archive_code'] = $pref . $code;
-            $_POST['student_id'] = $this->settings->userdata('id');
-            $_POST['curriculum_id'] = $this->settings->userdata('curriculum_id');
-        }
-
-        if (isset($_POST['abstract'])) $_POST['abstract'] = htmlentities($_POST['abstract']);
-        if (isset($_POST['members'])) $_POST['members'] = htmlentities($_POST['members']);
-
-        extract($_POST);
-        $data = "";
-
-        // Handle PDF Upload
-        if (isset($_FILES['pdf']) && !empty($_FILES['pdf']['tmp_name'])) {
-            $type = mime_content_type($_FILES['pdf']['tmp_name']);
-            if ($type != "application/pdf") {
-                $resp['status'] = "failed";
-                $resp['msg'] = "Invalid file type for PDF.";
-                return json_encode($resp);
-            }
-            $pdf = $this->upload_file('pdf');
-            if ($pdf === false) {
-                $resp['status'] = "failed";
-                $resp['msg'] = "Error uploading PDF.";
-                return json_encode($resp);
-            }
-            $data .= ", `pdf_file` = '{$pdf}'";
-        }
-
-        // Handle Banner Upload
-        if (isset($_FILES['banner']) && !empty($_FILES['banner']['tmp_name'])) {
-            $type = mime_content_type($_FILES['banner']['tmp_name']);
-            if (strpos($type, 'image/') === false) {
-                $resp['status'] = "failed";
-                $resp['msg'] = "Invalid file type for Banner Image.";
-                return json_encode($resp);
-            }
-            $banner = $this->upload_file('banner');
-            if ($banner === false) {
-                $resp['status'] = "failed";
-                $resp['msg'] = "Error uploading Banner Image.";
-                return json_encode($resp);
-            }
-            $data .= ", `banner` = '{$banner}'";
-        }
-
-        // Handle SQL File Upload
-        if (isset($_FILES['sql']) && !empty($_FILES['sql']['tmp_name'])) {
-            $type = mime_content_type($_FILES['sql']['tmp_name']);
-            if ($type != "application/sql") {
-                $resp['status'] = "failed";
-                $resp['msg'] = "Invalid file type for SQL.";
-                return json_encode($resp);
-            }
-            $sql_file = $this->upload_file('sql');
-            if ($sql_file === false) {
-                $resp['status'] = "failed";
-                $resp['msg'] = "Error uploading SQL File.";
-                return json_encode($resp);
-            }
-            $data .= ", `sql_file` = '{$sql_file}'";
-        }
-
-        // Handle ZIP File Upload
-        if (isset($_FILES['code']) && !empty($_FILES['code']['tmp_name'])) {
-            $type = mime_content_type($_FILES['code']['tmp_name']);
-            if ($type != "application/zip") {
-                $resp['status'] = "failed";
-                $resp['msg'] = "Invalid file type for ZIP Code File.";
-                return json_encode($resp);
-            }
-            $code_file = $this->upload_file('code');
-            if ($code_file === false) {
-                $resp['status'] = "failed";
-                $resp['msg'] = "Error uploading ZIP Code File.";
-                return json_encode($resp);
-            }
-            $data .= ", `code_file` = '{$code_file}'";
-        }
-
-        foreach ($_POST as $k => $v) {
-            if (!in_array($k, array('id', 'pdf', 'banner', 'sql', 'code'))) {
-                if (!is_numeric($v))
-                    $v = $this->conn->real_escape_string($v);
-                if (!empty($data)) $data .= ",";
-                $data .= " `{$k}`='{$v}' ";
-            }
-        }
-
-        if (empty($id)) {
-            $sql = "INSERT INTO `archive_list` SET {$data} ";
-        } else {
-            $sql = "UPDATE `archive_list` SET {$data} WHERE id = '{$id}' ";
-        }
-
-        $check = $this->conn->query("SELECT * FROM `archive_list` WHERE `title`='{$title}' " . ($id > 0 ? " AND id != '{$id}'" : ""))->num_rows;
-        if ($check > 0) {
-            $resp['status'] = 'failed';
-            $resp['msg'] = "Project Title Already Exists.";
-        } else {
-            $save = $this->conn->query($sql);
-            if ($save) {
-                $rid = !empty($id) ? $id : $this->conn->insert_id;
-                $resp['status'] = 'success';
-                $resp['msg'] = empty($id) ? "Project details successfully added." : "Project details have been updated successfully.";
-
-                // Log activity
-                $this->ArchivelogActivity('Project added or updated: ' . $title);
-            } else {
-                $resp['status'] = 'failed';
-                $resp['msg'] = "An error occurred.";
-                $resp['err'] = $this->conn->error . "[{$sql}]";
-            }
-        }
-        if ($resp['status'] == 'success')
-            $this->settings->set_flashdata('success', $resp['msg']);
-        return json_encode($resp);
-    }
+		// Debugging file data
+		error_log("POST Data: " . print_r($_POST, true));
+		error_log("FILES Data: " . print_r($_FILES, true));
 	
+		if (empty($_POST['id'])) {
+			$pref = date("Ym");
+			$code = sprintf("%'.04d", 1);
+			while (true) {
+				$check = $this->conn->query("SELECT * FROM archive_list WHERE archive_code = '{$pref}{$code}'")->num_rows;
+				if ($check > 0) {
+					$code = sprintf("%'.04d", abs($code) + 1);
+				} else {
+					break;
+				}
+			}
+			$_POST['archive_code'] = $pref . $code;
+			$_POST['student_id'] = $this->settings->userdata('id');
+			$_POST['curriculum_id'] = $this->settings->userdata('curriculum_id');
+		}
+	
+		if (isset($_POST['abstract'])) $_POST['abstract'] = htmlentities($_POST['abstract']);
+		if (isset($_POST['members'])) $_POST['members'] = htmlentities($_POST['members']);
+	
+		extract($_POST);
+		$data = "";
+	
+		// Handle PDF Upload
+		if (isset($_FILES['pdf']) && !empty($_FILES['pdf']['tmp_name'])) {
+			$type = mime_content_type($_FILES['pdf']['tmp_name']);
+			if ($type != "application/pdf") {
+				$resp['status'] = "failed";
+				$resp['msg'] = "Invalid file type for PDF.";
+				return json_encode($resp);
+			}
+			$pdf = $this->upload_file('pdf');
+			if ($pdf === false) {
+				$resp['status'] = "failed";
+				$resp['msg'] = "Error uploading PDF.";
+				return json_encode($resp);
+			}
+			$data .= ", pdf_file = '{$pdf}'";
+		}
+	
+		// Handle Banner Upload
+		if (isset($_FILES['banner']) && !empty($_FILES['banner']['tmp_name'])) {
+			$type = mime_content_type($_FILES['banner']['tmp_name']);
+			if (strpos($type, 'image/') === false) {
+				$resp['status'] = "failed";
+				$resp['msg'] = "Invalid file type for Banner Image.";
+				return json_encode($resp);
+			}
+			$banner = $this->upload_file('banner');
+			if ($banner === false) {
+				$resp['status'] = "failed";
+				$resp['msg'] = "Error uploading Banner Image.";
+				return json_encode($resp);
+			}
+			$data .= ", banner = '{$banner}'";
+		}
+	
+		// Handle SQL File Upload
+		if (isset($_FILES['sql']) && !empty($_FILES['sql']['tmp_name'])) {
+			$type = mime_content_type($_FILES['sql']['tmp_name']);
+			if ($type != "application/sql") {
+				$resp['status'] = "failed";
+				$resp['msg'] = "Invalid file type for SQL.";
+				return json_encode($resp);
+			}
+			$sql_file = $this->upload_file('sql');
+			if ($sql_file === false) {
+				$resp['status'] = "failed";
+				$resp['msg'] = "Error uploading SQL File.";
+				return json_encode($resp);
+			}
+			$data .= ", sql_file = '{$sql_file}'";
+		}
+	
+		// Handle ZIP File Upload
+		if (isset($_FILES['code']) && !empty($_FILES['code']['tmp_name'])) {
+			$type = mime_content_type($_FILES['code']['tmp_name']);
+			if ($type != "application/zip") {
+				$resp['status'] = "failed";
+				$resp['msg'] = "Invalid file type for ZIP Code File.";
+				return json_encode($resp);
+			}
+			$code_file = $this->upload_file('code');
+			if ($code_file === false) {
+				$resp['status'] = "failed";
+				$resp['msg'] = "Error uploading ZIP Code File.";
+				return json_encode($resp);
+			}
+			$data .= ", code_file = '{$code_file}'";
+		}
+	
+		foreach ($_POST as $k => $v) {
+			if (!in_array($k, array('id', 'pdf', 'banner', 'sql', 'code'))) {
+				if (!is_numeric($v))
+					$v = $this->conn->real_escape_string($v);
+				if (!empty($data)) $data .= ",";
+				$data .= " {$k}='{$v}' ";
+			}
+		}
+	
+		if (empty($id)) {
+			$sql = "INSERT INTO archive_list SET {$data} ";
+		} else {
+			$sql = "UPDATE archive_list SET {$data} WHERE id = '{$id}' ";
+		}
+	
+		error_log("SQL Query: " . $sql); // Log SQL Query
+	
+		$check = $this->conn->query("SELECT * FROM archive_list WHERE title='{$title}' " . ($id > 0 ? " AND id != '{$id}'" : ""))->num_rows;
+		if ($check > 0) {
+			$resp['status'] = 'failed';
+			$resp['msg'] = "Project Title Already Exists.";
+		} else {
+			$save = $this->conn->query($sql);
+			if ($save) {
+				$rid = !empty($id) ? $id : $this->conn->insert_id;
+				$resp['status'] = 'success';
+				$resp['msg'] = empty($id) ? "Project details successfully added." : "Project details have been updated successfully.";
+	
+				// Log activity
+				$this->ArchivelogActivity('Project added or updated: ' . $title);
+			} else {
+				$resp['status'] = 'failed';
+				$resp['msg'] = "An error occurred.";
+				$resp['err'] = $this->conn->error . "[{$sql}]";
+				error_log("SQL Error: " . $this->conn->error); // Log SQL Error
+			}
+		}
+		if ($resp['status'] == 'success')
+			$this->settings->set_flashdata('success', $resp['msg']);
+		return json_encode($resp);
+	}
 
 
 	
