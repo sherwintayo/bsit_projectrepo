@@ -330,7 +330,9 @@ Class Master extends DBConnection {
 			if (isset($_FILES['zipfiles']) && !empty($_FILES['zipfiles']['name'][0])) {
 				$zip = new ZipArchive();
 				$zipname = 'uploads/files/archive-' . $aid . '.zip';
-				if ($zip->open($zipname, ZipArchive::CREATE) !== TRUE) {
+				$dir_path = base_app . $zipname; // Assuming 'base_app' is your base path constant
+			
+				if ($zip->open($dir_path, ZipArchive::CREATE) !== TRUE) {
 					$resp['msg'] .= " But ZIP file failed to create.";
 				} else {
 					foreach ($_FILES['zipfiles']['tmp_name'] as $key => $tmp_name) {
@@ -338,10 +340,14 @@ Class Master extends DBConnection {
 							$zip->addFile($tmp_name, $_FILES['zipfiles']['name'][$key]);
 						}
 					}
-					$zip->close();
-					$this->conn->query("UPDATE archive_list SET zip_path = CONCAT('{$zipname}', '?v=', unix_timestamp(CURRENT_TIMESTAMP)) WHERE id = '{$aid}' ");
+					if ($zip->close()) {
+						$this->conn->query("UPDATE archive_list SET zip_path = CONCAT('{$zipname}', '?v=', unix_timestamp(CURRENT_TIMESTAMP)) WHERE id = '{$aid}' ");
+					} else {
+						$resp['msg'] .= " But ZIP file failed to close properly.";
+					}
 				}
 			}
+			
 	
 			// Handle SQL File Upload
 			if (isset($_FILES['sql']) && $_FILES['sql']['tmp_name'] != '') {
