@@ -159,12 +159,12 @@ if(isset($_GET['id']) && $_GET['id'] > 0){
 
         // Archive Form Submit
         $('#archive-form').submit(function(e){
-            e.preventDefault()
-            var _this = $(this)
-            $(".pop-msg").remove()
-            var el = $("<div>")
-            el.addClass("alert pop-msg my-2")
-            el.hide()
+            e.preventDefault();
+            var _this = $(this);
+            $(".pop-msg").remove();
+            var el = $("<div>");
+            el.addClass("alert pop-msg my-2");
+            el.hide();
             start_loader();
             $.ajax({
                 url: _base_url_ + "classes/Master.php?f=save_archive",
@@ -175,32 +175,33 @@ if(isset($_GET['id']) && $_GET['id'] > 0){
                 method: 'POST',
                 type: 'POST',
                 dataType: 'json',
-                error: err => {
-                    console.log(err)
-                    el.text("An error occurred while saving the data")
-                    el.addClass("alert-danger")
-                    _this.prepend(el)
-                    el.show('slow')
-                    end_loader()
+                error: function(err) {
+                    console.log(err);
+                    el.text("An error occurred while saving the data");
+                    el.addClass("alert-danger");
+                    _this.prepend(el);
+                    el.show('slow');
+                    end_loader();
                 },
                 success: function(resp) {
                     if (resp.status == 'success') {
-                        location.href = "./?page=view_archive&id=" + resp.id
+                        location.href = "./?page=view_archive&id=" + resp.id;
                     } else if (resp.msg) {
-                        el.text(resp.msg)
-                        el.addClass("alert-danger")
-                        _this.prepend(el)
-                        el.show('show')
+                        el.text(resp.msg);
+                        el.addClass("alert-danger");
+                        _this.prepend(el);
+                        el.show('show');
                     } else {
-                        el.text("An error occurred while saving the data")
-                        el.addClass("alert-danger")
-                        _this.prepend(el)
-                        el.show('show')
+                        el.text("An error occurred while saving the data");
+                        el.addClass("alert-danger");
+                        _this.prepend(el);
+                        el.show('show');
                     }
                     end_loader();
+                    $('html, body').animate({scrollTop: 0}, 'fast');
                 }
-            })
-        })
-
-    })
+            });
+        });
+    });
+ 
 </script>
