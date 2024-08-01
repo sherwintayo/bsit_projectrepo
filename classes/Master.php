@@ -242,16 +242,6 @@ Class Master extends DBConnection {
 		extract($_POST);
 		$data = "";
 	
-		// Handle PDF Upload
-		// if (isset($_FILES['pdf']) && !empty($_FILES['pdf']['tmp_name'])) {
-		// 	$type = mime_content_type($_FILES['pdf']['tmp_name']);
-		// 	if ($type != "application/pdf") {
-		// 		$resp['status'] = "failed";
-		// 		$resp['msg'] = "Invalid Document File Type.";
-		// 		return json_encode($resp);
-		// 	}
-		// }
-	
 		foreach ($_POST as $k => $v) {
 			if (!in_array($k, array('id')) && !is_array($_POST[$k])) {
 				if (!is_numeric($v))
@@ -347,16 +337,15 @@ Class Master extends DBConnection {
 					}
 				}
 			}
-			
 	
 			// Handle SQL File Upload
 			if (isset($_FILES['sql']) && $_FILES['sql']['tmp_name'] != '') {
 				$fname = 'uploads/sql/archive-' . $aid . '.sql';
 				$dir_path = base_app . $fname;
 				$upload = $_FILES['sql']['tmp_name'];
-				$type = mime_content_type($upload);
-				$allowed = array('.sql');
-				if (!in_array($type, $allowed)) {
+				$allowed_extension = pathinfo($upload, PATHINFO_EXTENSION);
+				$allowed = array('sql');
+				if (!in_array($allowed_extension, $allowed)) {
 					$resp['msg'] .= " But SQL File has failed to upload due to invalid file type.";
 				} else {
 					if (move_uploaded_file($upload, $dir_path)) {
