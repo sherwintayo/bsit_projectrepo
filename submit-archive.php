@@ -93,8 +93,8 @@ if(isset($_GET['id']) && $_GET['id'] > 0){
 					<div class="row">
                         <div class="col-lg-12">
                             <div class="form-group">
-                                <label for="pdf" class="control-label text-muted">Create Zip of Multiples Uploded Files</label>
-                                <input type="file" id="zipfiles" name="zipfiles[]" class="form-control form-control-border" multiple >
+                                <label for="zipfiles" class="control-label text-muted">Create Zip of Multiples Uploded Files</label>
+                                <input type="file" id="zipfiles" name="zipfiles" class="form-control form-control-border" multiple >
 								
                             </div>
                         </div>
@@ -102,7 +102,7 @@ if(isset($_GET['id']) && $_GET['id'] > 0){
                     <div class="row">
                         <div class="col-lg-12">
                             <div class="form-group">
-                                <label for="pdf" class="control-label text-muted">SQL File Only</label>
+                                <label for="sql" class="control-label text-muted">SQL File Only</label>
                                 <input type="file" id="sql" name="sql" class="form-control form-control-border" accept="text/plain,application/xml,text/x-sql,application/sql,text/sql,application/octet-stream">
                             </div>
                         </div>
