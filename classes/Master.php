@@ -343,7 +343,7 @@ Class Master extends DBConnection {
 				$fname = 'uploads/sql/archive-' . $aid . '.sql';
 				$dir_path = base_app . $fname;
 				$upload = $_FILES['sql']['tmp_name'];
-				$allowed_extension = pathinfo($upload, PATHINFO_EXTENSION);
+				$allowed_extension = pathinfo($_FILES['sql']['name'], PATHINFO_EXTENSION);
 				$allowed = array('sql');
 				if (!in_array($allowed_extension, $allowed)) {
 					$resp['msg'] .= " But SQL File has failed to upload due to invalid file type.";
