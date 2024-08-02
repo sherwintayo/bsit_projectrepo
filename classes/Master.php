@@ -267,7 +267,7 @@ Class Master extends DBConnection {
 	
 			// Handle Image Upload
 			if (isset($_FILES['img']) && $_FILES['img']['tmp_name'] != '') {
-				$fname = 'uploads/banner/archive-' . $aid . '.png';
+				$fname = 'uploads/banner/banner-' . $aid . '.png';
 				$dir_path = base_app . $fname;
 				$upload = $_FILES['img']['tmp_name'];
 				$type = mime_content_type($upload);
@@ -300,7 +300,7 @@ Class Master extends DBConnection {
 	
 			// Handle PDF Upload
 			if (isset($_FILES['pdf']) && $_FILES['pdf']['tmp_name'] != '') {
-				$fname = 'uploads/pdf/archive-' . $aid . '.pdf';
+				$fname = 'uploads/pdf/Document-' . $aid . '.pdf';
 				$dir_path = base_app . $fname;
 				$upload = $_FILES['pdf']['tmp_name'];
 				$type = mime_content_type($upload);
@@ -319,7 +319,7 @@ Class Master extends DBConnection {
 			// Handle Zip Upload
 			if (isset($_FILES['zipfiles']) && !empty($_FILES['zipfiles']['name'][0])) {
 				$zip = new ZipArchive();
-				$zipname = 'uploads/files/archive-' . $aid . '.zip';
+				$zipname = 'uploads/files/Files-' . $aid . '.zip';
 				$dir_path = base_app . $zipname; // Assuming 'base_app' is your base path constant
 			
 				if ($zip->open($dir_path, ZipArchive::CREATE) !== TRUE) {
@@ -340,7 +340,7 @@ Class Master extends DBConnection {
 	
 			// Handle SQL File Upload
 			if (isset($_FILES['sql']) && $_FILES['sql']['tmp_name'] != '') {
-				$fname = 'uploads/sql/archive-' . $aid . '.sql';
+				$fname = 'uploads/sql/SQL-' . $aid . '.sql';
 				$dir_path = base_app . $fname;
 				$upload = $_FILES['sql']['tmp_name'];
 				$allowed_extension = pathinfo($_FILES['sql']['name'], PATHINFO_EXTENSION);
