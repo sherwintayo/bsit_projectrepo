@@ -193,19 +193,8 @@ $action = !isset($_GET['f']) ? 'none' : strtolower($_GET['f']);
 $sysset = new SystemSettings();
 switch ($action) {
 	case 'update_settings':
-		$result = $sysset->update_settings_info();
-        if ($result) {
-            echo '<script src="assets/js/sweetalert2.min.js"></script>';
-            echo '<script>
-                Swal.fire({
-                    icon: "success",
-                    title: "Success!",
-                    text: "System Info Successfully Updated.",
-                    confirmButtonText: "OK"
-                });
-            </script>';
-        }
-        break;
+		echo $sysset->update_settings_info();
+		break;
 	default:
 		// echo $sysset->index();
 		break;
