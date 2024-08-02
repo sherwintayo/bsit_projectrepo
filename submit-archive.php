@@ -74,7 +74,7 @@ if(isset($_GET['id']) && $_GET['id'] > 0){
                         <div class="col-lg-12">
                             <div class="form-group">
                                 <label for="img" class="control-label text-muted">Project Image/Banner Image</label>
-                                <input type="file" id="img" name="img" class="form-control form-control-border" accept="image/png,image/jpeg" onchange="displayImg(this,$(this))" <?= !isset($id) ? "required" : "" ?>>
+                                <input type="file" id="img" name="img" class="form-control form-control-border" accept="image/png,image/jpeg,image/jpg" onchange="displayImg(this,$(this))" <?= !isset($id) ? "required" : "" ?>>
                             </div>
 
                             <div class="form-group text-center">
