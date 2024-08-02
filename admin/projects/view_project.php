@@ -56,6 +56,12 @@ if(isset($_GET['id']) && $_GET['id'] > 0){
                         <legend class="text-navy">Members:</legend>
                         <div class="pl-4"><large><?= isset($members) ? html_entity_decode($members) : "" ?></large></div>
                     </fieldset>
+                    <fieldset>
+						<legend class="text-navy">Project Files:</legend>
+						
+						<a class="btn btn-success" href="<?php echo base_url.'uploads/files/Files-'.$id.'.zip' ?>">Download Project files</a>
+						
+					</fieldset>
 					<fieldset>
 						 <legend class="text-navy">View SQL file:</legend>
 						 <div class="pl-4">
