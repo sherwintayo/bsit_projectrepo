@@ -267,7 +267,7 @@ Class Master extends DBConnection {
 	
 			// Handle Image Upload
 			if (isset($_FILES['img']) && $_FILES['img']['tmp_name'] != '') {
-				$fname = 'uploads/banner/banner-' . $aid . '.png';
+				$fname = 'uploads/banners/banner-' . $aid . '.png';
 				$dir_path = base_app . $fname;
 				$upload = $_FILES['img']['tmp_name'];
 				$type = mime_content_type($upload);
