@@ -1,16 +1,6 @@
 <?php if($_settings->chk_flashdata('success')): ?>
-<!-- <script>
-	alert_toast("<?php echo $_settings->flashdata('success') ?>",'success')
-</script> -->
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        Swal.fire({
-            icon: 'success',
-            title: 'Success!',
-            text: "<?php echo $_settings->flashdata('success') ?>",
-            confirmButtonText: 'OK'
-        });
-    });
+	alert_toast("<?php echo $_settings->flashdata('success') ?>",'success')
 </script>
 <?php endif;?>
 
