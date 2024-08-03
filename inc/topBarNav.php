@@ -228,13 +228,13 @@
     });
 
     // Mark notification as read
-    $('#notificationDropdown').on('click', '.mark-read', function() {
+    $('#notificationDropdown').on('click', '.mark-read', function () {
       const notificationId = $(this).data('id');
       $.ajax({
         url: 'update_notification_status.php',
         method: 'POST',
         data: { id: notificationId, status: 'read' },
-        success: function() {
+        success: function () {
           $(`#notificationDropdown .dropdown-item[data-id="${notificationId}"]`).remove();
           // Update badge count
           let badge = $('#notificationIcon .badge');
