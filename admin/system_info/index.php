@@ -150,42 +150,5 @@
 		    })
 	})
 
-	$(document).ready(function() {
-    $('#system-frm').submit(function(e) {
-        e.preventDefault();
-        $.ajax({
-            url: _base_url_+"classes/SystemSettings.php?f=update_settings_info", // Adjust the path as needed
-            type: 'POST',
-            data: new FormData(this),
-            processData: false,
-            contentType: false,
-            dataType: 'json',
-            success: function(response) {
-                if (response.status === 'success') {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Success!',
-                        text: response.msg,
-                        confirmButtonText: 'OK'
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error!',
-                        text: response.msg,
-                        confirmButtonText: 'OK'
-                    });
-                }
-            },
-            error: function() {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error!',
-                    text: 'An unexpected error occurred.',
-                    confirmButtonText: 'OK'
-                });
-            }
-        });
-    });
-});
+	
 </script>

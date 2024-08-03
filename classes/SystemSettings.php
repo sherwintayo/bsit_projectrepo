@@ -30,16 +30,13 @@ class SystemSettings extends DBConnection{
 	}
 	function update_settings_info(){
 		$data = "";
-		$resp = array('status' => 'error', 'msg' => 'Something went wrong.');
-		
 		foreach ($_POST as $key => $value) {
-			if(!in_array($key, array("content"))) {
+			if(!in_array($key,array("content")))
+			if(isset($_SESSION['system_info'][$key])){
 				$value = str_replace("'", "&apos;", $value);
-				if(isset($_SESSION['system_info'][$key])) {
-					$qry = $this->conn->query("UPDATE system_info SET meta_value = '{$value}' WHERE meta_field = '{$key}'");
-				} else {
-					$qry = $this->conn->query("INSERT INTO system_info SET meta_value = '{$value}', meta_field = '{$key}'");
-				}
+				$qry = $this->conn->query("UPDATE system_info set meta_value = '{$value}' where meta_field = '{$key}' ");
+			}else{
+				$qry = $this->conn->query("INSERT into system_info set meta_value = '{$value}', meta_field = '{$key}' ");
 			}
 		}
 		if(isset($_POST['content']))
@@ -123,15 +120,12 @@ class SystemSettings extends DBConnection{
 			}
 		}
 		
-	   // Update session info
-	   $update = $this->update_system_info();
-	   if ($update) {
-		   $this->set_flashdata('success', 'System Info Successfully Updated.');
-		   $resp['status'] = 'success';
-		   $resp['msg'] = 'System Info Successfully Updated.';
-	   }
-	   
-	   echo json_encode($resp);
+		$update = $this->update_system_info();
+		$flash = $this->set_flashdata('success','System Info Successfully Updated.');
+		if($update && $flash){
+			// var_dump($_SESSION);
+			return true;
+		}
 	}
 	function set_userdata($field='',$value=''){
 		if(!empty($field) && !empty($value)){
