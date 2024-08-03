@@ -15,14 +15,6 @@
     display: inline-block;
   }
   .notification-icon .badge {
-    /* position: absolute;
-    top: -10px;
-    right: -10px;
-    background-color: red;
-    color: white;
-    border-radius: 50%;
-    padding: 2px 6px;
-    font-size: 12px; */
         position: absolute;
     top: -10px;
     right: -10px;
@@ -40,7 +32,7 @@
     background-color: #fff;
     border: 1px solid #ddd;
     border-radius: 4px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1);
     z-index: 1050;
     max-height: 300px;
     overflow-y: auto;
