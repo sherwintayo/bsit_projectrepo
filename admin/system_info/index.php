@@ -1,15 +1,16 @@
 <?php if($_settings->chk_flashdata('success')): ?>
+
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+
         Swal.fire({
             icon: 'success',
             title: 'Success!',
             text: "<?php echo $_settings->flashdata('success') ?>",
             confirmButtonText: 'OK'
         });
-    });
+  
 </script>
-<?php endif; ?>
+<?php endif;?>
 
 <style>
 	img#cimg{
@@ -149,6 +150,4 @@
 		        ]
 		    })
 	})
-
-	
 </script>
