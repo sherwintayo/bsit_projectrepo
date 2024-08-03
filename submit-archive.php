@@ -186,7 +186,16 @@ if(isset($_GET['id']) && $_GET['id'] > 0){
                 },
                 success:function(resp){
                     if(resp.status == 'success'){
+                     
+                        Swal.fire({
+                        icon: 'success',
+                        title: 'Login Successful',
+                        text: 'You will be redirected shortly.',
+                        showConfirmButton: false,
+                        timer: 800
+                    }).then(() => {
                         location.href= "./?page=view_archive&id="+resp.id
+                    })
                     }else if(!!resp.msg){
                         el.text(resp.msg)
                         el.addClass("alert-danger")
