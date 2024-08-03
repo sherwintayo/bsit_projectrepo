@@ -79,30 +79,30 @@
       <span class="mr-2 text-white"><i class="fa fa-phone mr-1"></i> <?= $_settings->info('contact') ?></span>
     </div>
     <div>
-      <?php if($_settings->userdata('id') > 0): ?>
+      <?php if ($_settings->userdata('id') > 0) : ?>
         <!-- Notification Icon -->
         <span class="notification-icon mx-2" id="notificationIcon">
           <a href="javascript:void(0)"><i class="fa fa-bell text-white"></i></a>
           <?php
-            $user_id = $_settings->userdata('id');
-            $notifications_query = $conn->query("SELECT COUNT(*) as unread_count FROM notifications WHERE student_id = $user_id AND status = 'unread'");
-            $unread_notifications = $notifications_query->fetch_assoc()['unread_count'];
+          $user_id = $_settings->userdata('id');
+          $notifications_query = $conn->query("SELECT COUNT(*) as unread_count FROM notifications WHERE student_id = $user_id AND status = 'unread'");
+          $unread_notifications = $notifications_query->fetch_assoc()['unread_count'];
           ?>
-          <?php if ($unread_notifications > 0): ?>
+          <?php if ($unread_notifications > 0) : ?>
             <span class="badge"><?= $unread_notifications ?></span>
           <?php endif; ?>
         </span>
         <!-- Notification Dropdown -->
         <div class="notification-dropdown" id="notificationDropdown">
           <?php
-            // Fetch only unread notifications
-            $notifications_query = $conn->query("SELECT * FROM notifications WHERE student_id = $user_id AND status = 'unread' ORDER BY date_created DESC");
-            while($notification = $notifications_query->fetch_assoc()):
+          // Fetch only unread notifications
+          $notifications_query = $conn->query("SELECT * FROM notifications WHERE student_id = $user_id AND status = 'unread' ORDER BY date_created DESC");
+          while ($notification = $notifications_query->fetch_assoc()) :
           ?>
-          <div class="dropdown-item" data-id="<?= $notification['id'] ?>">
-            <div><?= htmlspecialchars($notification['message']) ?></div>
-            <div class="mark-read" data-id="<?= $notification['id'] ?>">Click to Mark as read</div>
-          </div>
+            <div class="dropdown-item" data-id="<?= $notification['id'] ?>">
+              <div><?= htmlspecialchars($notification['message']) ?></div>
+              <div class="mark-read" data-id="<?= $notification['id'] ?>">Click to Mark as read</div>
+            </div>
           <?php endwhile; ?>
         </div>
         <span class="mx-2"><img src="<?= validate_image($_settings->userdata('avatar')) ?>" alt="User Avatar" id="student-img-avatar"></span>
@@ -220,7 +220,8 @@
     });
 
     // Mark notification as read
-    $('#notificationDropdown').on('click', '.mark-read', function () {
+    $('#notificationDropdown').on('click', '.mark-read', function (e) {
+      e.preventDefault(); // Prevent the default action
       const notificationId = $(this).data('id');
       $.ajax({
         url: 'update_notification_status.php',
@@ -236,6 +237,9 @@
           } else {
             badge.remove(); // Remove badge if count is 0
           }
+        },
+        error: function (xhr, status, error) {
+          console.error('Error marking notification as read:', error);
         }
       });
     });
