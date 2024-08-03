@@ -76,7 +76,7 @@
                         </div>
                         </div>
                         <div class="row">                      
-                             <div class="col-lg-12">
+                             <div class="col-lg-6">
                                 <div class="form-group text-left">
                                    <button><a href="<?php echo base_url ?>">Go Back</a></button>
                                 </div>
