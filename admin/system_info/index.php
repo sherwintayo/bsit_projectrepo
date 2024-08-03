@@ -154,7 +154,7 @@
     $('#system-frm').submit(function(e) {
         e.preventDefault();
         $.ajax({
-            url: _base_url_+'SystemSettings.php?f=update_settings_info', // Adjust the path as needed
+            url: _base_url_+"classes/SystemSettings.php?f=update_settings_info", // Adjust the path as needed
             type: 'POST',
             data: new FormData(this),
             processData: false,
