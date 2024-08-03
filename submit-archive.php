@@ -190,7 +190,7 @@ if(isset($_GET['id']) && $_GET['id'] > 0){
                         Swal.fire({
                         icon: 'success',
                         title: 'Uploaded Successfully',
-                        text: 'You will be redirected shortly.',
+                        text: 'Click OK to Continue.',
                       
                     }).then(() => {
                         location.href= "./?page=view_archive&id="+resp.id
