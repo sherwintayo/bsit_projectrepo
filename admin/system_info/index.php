@@ -1,14 +1,6 @@
 <?php if($_settings->chk_flashdata('success')): ?>
-
 <script>
-
-        Swal.fire({
-            icon: 'success',
-            title: 'Success!',
-            text: "<?php echo $_settings->flashdata('success') ?>",
-            confirmButtonText: 'OK'
-        });
-  
+	swal("<?php echo $_settings->flashdata('success') ?>",'success')
 </script>
 <?php endif;?>
 
