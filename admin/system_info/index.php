@@ -1,7 +1,4 @@
 <?php if($_settings->chk_flashdata('success')): ?>
-<!-- <script>
-	alert_toast("<?php echo $_settings->flashdata('success') ?>",'success')
-</script> -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         Swal.fire({
@@ -12,7 +9,7 @@
         });
     });
 </script>
-<?php endif;?>
+<?php endif; ?>
 
 <style>
 	img#cimg{
@@ -152,4 +149,43 @@
 		        ]
 		    })
 	})
+
+	$(document).ready(function() {
+    $('#system-frm').submit(function(e) {
+        e.preventDefault();
+        $.ajax({
+            url: _base_url_+'SystemSettings.php?f=update_settings_info', // Adjust the path as needed
+            type: 'POST',
+            data: new FormData(this),
+            processData: false,
+            contentType: false,
+            dataType: 'json',
+            success: function(response) {
+                if (response.status === 'success') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: response.msg,
+                        confirmButtonText: 'OK'
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: response.msg,
+                        confirmButtonText: 'OK'
+                    });
+                }
+            },
+            error: function() {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: 'An unexpected error occurred.',
+                    confirmButtonText: 'OK'
+                });
+            }
+        });
+    });
+});
 </script>
