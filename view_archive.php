@@ -109,7 +109,17 @@ if(isset($_GET['id']) && $_GET['id'] > 0){
 			},
 			success:function(resp){
 				if(typeof resp== 'object' && resp.status == 'success'){
-					location.replace("./");
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Deleted Successfully',
+                        // text: 'Click OK to Continue.',
+                        showConfirmButton: false,
+                        timer: 1000
+                    }).then(() => {
+                        location.replace("./");
+                    })
+				
+                  
 				}else{
 					alert_toast("An error occured.",'error');
 					end_loader();
