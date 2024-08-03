@@ -135,7 +135,7 @@
                         title: 'Login Successful',
                         text: 'You will be redirected shortly.',
                         showConfirmButton: false,
-                        timer: 1500
+                        timer: 1000
                     }).then(() => {
                         location.href= "./";
                     })
