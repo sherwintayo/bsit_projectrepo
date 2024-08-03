@@ -128,8 +128,17 @@
                 end_loader();
             },
             success:function(resp){
+                end_loader();
                 if(resp.status == 'success'){
-                    location.href= "./"
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Login Successful',
+                        text: 'You will be redirected shortly.',
+                        showConfirmButton: false,
+                        timer: 1500
+                    }).then(() => {
+                        location.href= "./";
+                    })
                 }else if(!!resp.msg){
                     el.text(resp.msg)
                     el.addClass("alert-danger")
