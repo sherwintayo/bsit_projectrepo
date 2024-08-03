@@ -73,13 +73,15 @@
                                 <div class="form-group">
                                     <input type="password" name="password" id="password" placeholder="Password" class="form-control form-control-border" required>
                                 </div>
-                            </div>
                         </div>
-                        <div class="row">
-                            <div class="col-lg-12">
-                            <div class="form-group text-left">
-                            <button><a href="<?php echo base_url ?>">Go Back</a></button>
+                        </div>
+                        <div class="row">                      
+                             <div class="col-lg-12">
+                                <div class="form-group text-left">
+                                   <button><a href="<?php echo base_url ?>">Go Back</a></button>
                                 </div>
+                            </div>
+                            <div class="col-lg-12">                 
                                 <div class="form-group text-right">
                                     <button class="btn btn-default bg-black btn-flat"> Login</button>
                                 </div>
