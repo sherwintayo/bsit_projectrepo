@@ -1,8 +1,12 @@
 <?php if($_settings->chk_flashdata('success')): ?>
 <script>
-	swal("<?php echo $_settings->flashdata('success') ?>",'success')
+    Swal.fire({
+        title: 'Success!',
+        text: '<?php echo $_settings->flashdata('success') ?>',
+        icon: 'success'
+    });
 </script>
-<?php endif;?>
+<?php endif; ?>
 
 <style>
 	img#cimg{
