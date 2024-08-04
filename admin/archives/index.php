@@ -28,8 +28,7 @@
 					<tr>
 						<th>#</th>
 						<th>Archive Code</th>
-						<th>Date Created</th>
-						
+						<th>Date Created</th>	
 						<th>Project Title</th>
 						<th>Curriculum</th>
 						<th>Status</th>

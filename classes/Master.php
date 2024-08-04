@@ -138,7 +138,8 @@ Class Master extends DBConnection {
 		}else{
 			$sql = "UPDATE `curriculum_list` set {$data} where id = '{$id}' ";
 		}
-		$check = $this->conn->query("SELECT * FROM `curriculum_list` where `name`='{$name}' and `program_id` = '{program_id}' ".($id > 0 ? " and id != '{$id}'" : ""))->num_rows;
+		$check = $this->conn->query("SELECT * FROM `curriculum_list` where `name`='{$name}' and `program_id` = '{program_id}' 
+		".($id > 0 ? " and id != '{$id}'" : ""))->num_rows;
 		if($check > 0){
 			$resp['status'] = 'failed';
 			$resp['msg'] = "Curriculum Name Already Exists.";
@@ -363,10 +364,7 @@ Class Master extends DBConnection {
 		return json_encode($resp);
 	}
 	
-	
-	
-	
-	
+
 
 	
 	    //    DELETE ARCHIVE
@@ -408,6 +406,8 @@ Class Master extends DBConnection {
 			
 			$resp['status'] = 'success';
 			$resp['msg'] = "Archive status has been successfully updated.";
+
+			$this->UpdateArchivelogActivity('Program saved or updated: ' . $name);
 		} else {
 			$resp['status'] = 'failed';
 			$resp['msg'] = "An error occurred. Error: " . $this->conn->error;
@@ -417,6 +417,15 @@ Class Master extends DBConnection {
 			$this->settings->set_flashdata('success', $resp['msg']);
 		
 		return json_encode($resp);
+	}
+
+
+	private function UpdateArchivelogActivity($action) {
+		$username = $this->settings->userdata('username');
+		$date = date('Y-m-d H:i:s');
+		$action = $this->conn->real_escape_string($action);
+		$sql = "INSERT INTO `activity_log` (`username`, `date`, `action`) VALUES ('$username', '$date', '$action')";
+		$this->conn->query($sql); // Assuming $this->conn is your database connection
 	}
 	
 	function notify_student($archive_id, $status) {
