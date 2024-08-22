@@ -27,6 +27,8 @@
    <!-- Select2 -->
   <link rel="stylesheet" href="<?php echo base_url ?>plugins/select2/css/select2.min.css">
   <link rel="stylesheet" href="<?php echo base_url ?>plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
+           <!-- Bootstrap 4 CSS CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/css/bootstrap.min.css" />
     <!-- iCheck -->
     <link rel="stylesheet" href="<?php echo base_url ?>plugins/icheck-bootstrap/icheck-bootstrap.min.css">
     <!-- JQVMap -->

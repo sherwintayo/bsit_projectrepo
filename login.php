@@ -15,19 +15,23 @@
       background-image: url("<?php echo validate_image($_settings->info('cover')) ?>");
       background-size:cover;
       background-repeat:no-repeat;
+      background-position:center center;
+   height: 100%;
+   width: 100%;
     }
     .login-title{
-      text-shadow: 2px 2px black
+      text-shadow: 3px 3px black;
+      padding: 20px 0 0 0;
     }
     /* #login{
       flex-direction:column !important
     } */
-    #login{
+    /* #login{
         direction:rtl
     }
     #login > *{
         direction:ltr
-    }
+    } */
     #logo-img{
         height:150px;
         width:150px;
@@ -39,56 +43,146 @@
       width: 100% !important;
       max-width:unset !important
     } */
+     .myColor{
+        background-image: linear-gradient(to right, #f83600 50%, #f9d423 150%);
+     }
+     .myLoginForm {
+  background: transparent;
+  border: 2px solid #fff;
+  backdrop-filter: blur(4px);
+  border-radius: 20px 0 0 20px;
+}
+
+/* Extra small devices (portrait phones, less than 576px) */
+@media (max-width: 575.98px) {
+
+    .myContainer{
+        margin: 20px;
+    }
+  
+    .login-form {
+        width: 100%;
+        
+    }
+
+    .card {
+        width: 100%;
+        margin: 0;
+    }
+}
+
+/* Small devices (landscape phones, less than 768px) */
+@media (max-width: 767.98px) {  
+
+    .myContainer{
+        margin: 20px;
+    }
+
+    .login-form {
+        width: 100%;
+        
+    }
+
+    .card {
+        width: 100%;
+    }
+}
+
+/* Medium devices (tablets, less than 992px) */
+@media (max-width: 991.98px) {
+    .login-form {
+        width: 70%;
+    }
+
+    .card {
+        width: 90%;
+    }
+}
+
+/* Large devices (desktops, less than 1200px) */
+@media (max-width: 1199.98px) {
+    .login-form {
+        width: 60%;
+    }
+
+    .card {
+        width: 80%;
+    }
+}
+
+/* Extra large devices (large desktops, 1200px and up) */
+@media (min-width: 1200px) {
+    .login-form {
+        width: 50%;
+    }
+
+    .card {
+        width: 70%;
+    }
+}
+
   </style>
   <?php if($_settings->chk_flashdata('success')): ?>
       <script>
         alert_toast("<?php echo $_settings->flashdata('success') ?>",'success')
       </script>
       <?php endif;?> 
-<div class="h-100 d-flex  align-items-center w-100" id="login">
-    <div class="col-7 h-100 d-flex align-items-center justify-content-center">
-      <div class="w-100">
-        <center><img src="<?= validate_image($_settings->info('logo')) ?>" alt="" id="logo-img"></center>
-        <h1 class="text-center py-5 login-title"><b><?php echo $_settings->info('name') ?> - Admin</b></h1>
-      </div>
-      
-    </div>
-    <div class="col-5 h-100 bg-gradient bg-navy">
-        <div class="w-100 d-flex justify-content-center align-items-center h-100 text-navy">
-            <div class="card card-outline card-primary rounded-0 shadow col-lg-10 col-md-10 col-sm-5">
-                <div class="card-header">
-                    <h5 class="card-title text-center text-dark"><b>Login</b></h5>
-                </div>
-                <div class="card-body">
+<div class=" d-flex flex-column align-items-center w-100" id="login">
+   
+    <div class="body d-flex flex-column justify-content-center align-items-center">
+     <div class="w-100">
+        <h1 class="text-center py-5 my-5 login-title"><b><?php echo $_settings->info('name') ?></b></h1>
+      </div> 
+        <div class="row myContainer">
+                <div class="myLoginForm col-lg-7 p-3 w-100 d-flex justify-content-center align-items-center text-navy">
+               
+                     <div class="d-flex flex-column w-100 px-3">
+                    <h1 class="text-center font-weight-bold text-white">Sign in to Account</h1>
+                    <hr class="my-3" />
                     <form action="" id="slogin-form">
-                        <div class="row">
-                            <div class="col-lg-12">
-                                <div class="form-group">
-                                    <input type="email" name="email" id="email" placeholder="Email" class="form-control form-control-border" required>
-                                </div>
+                     <div class="row">
+                      <div class="col-lg-12">
+                     <div class="input-group form-group">
+                     <div class="input-group-prepend">
+                        <span class="input-group-text rounded-0"><i class="far fa-envelope fa-lg fa-fw"></i></span>
+                      </div>
+                          <input type="email" name="email" id="email" placeholder="Email" class="form-control form-control-border" required>
+                       </div>
+                      </div>
+                      </div>
+                  <div class="row">
+                   <div class="col-lg-12">
+                     <div class="input-group form-group">
+                      <div class="input-group-prepend">
+                          <span class="input-group-text rounded-0"><i class="fas fa-key fa-lg fa-fw"></i></span>
+                        </div>
+                           <input type="password" name="password" id="password" placeholder="Password" class="form-control form-control-border" required>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-lg-12">
-                                <div class="form-group">
-                                    <input type="password" name="password" id="password" placeholder="Password" class="form-control form-control-border" required>
-                                </div>
-                        </div>
-                        </div>
-                        <div class="row">  
-                        <div class="col-6">            
+                          </div>
+                     </div>
+                     <div class="row">  
+                           <div class="col-6">            
                              <button><a href="<?php echo base_url ?>">Go Back</a></button>   
-                            </div>                    
-                            <div class="col-6">  
-                                <div class="form-group text-right">
-                                    <button class="btn btn-default bg-black btn-flat"> Login</button>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
+                          </div>                    
+                           <div class="col-6">  
+                             <div class="form-group text-right">
+                          <button class="btn btn-default bg-black btn-flat"> Login</button>
+                          </div>
+                       </div>
+                     </div>
+                  </form>
+                 </div>
+                   
                 </div>
-            </div>
-        </div>
+                <div class="col-lg-5 d-flex flex-column justify-content-center myColor p-4">
+                <h1 class="text-center font-weight-bold text-white">Hello Friends!</h1>
+                <hr class="my-3 bg-light myHr" />
+                <p class="text-center font-weight-bolder text-light lead">Enter your personal details and 
+                    start your journey with us!</p>
+                <button class="btn btn-outline-light btn-lg align-self-center font-weight-bolder mt-4 myLinkBtn" 
+                onclick="location.href = 'register.php'">Sign Up</button>
+                </div>
+         </div>   
     </div>
 </div>
 
