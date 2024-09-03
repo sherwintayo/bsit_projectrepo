@@ -73,5 +73,14 @@ if (!isset($_SESSION['last_login_attempt'])) {
     $_SESSION['last_login_attempt'] = time();
 }
 
+// Secure session ID regeneration
+if (empty($_SESSION['session_regenerated'])) {
+    session_regenerate_id(true);
+    $_SESSION['session_regenerated'] = time();
+} elseif (time() - $_SESSION['session_regenerated'] > 300) { // Regenerate session ID every 5 minutes
+    session_regenerate_id(true);
+    $_SESSION['session_regenerated'] = time();
+}
+
 ob_end_flush();
 ?>

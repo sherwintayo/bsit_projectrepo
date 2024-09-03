@@ -137,7 +137,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <!-- CSRF Token -->
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8'); ?>">
                 
-                <div class="input-group mb-3">
+                <div class="input-group mb=3">
                   <input type="text" class="form-control" autofocus name="username" placeholder="Username" required>
                   <div class="input-group-append">
                     <div class="input-group-text">
