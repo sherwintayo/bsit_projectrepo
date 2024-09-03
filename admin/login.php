@@ -3,6 +3,7 @@ require_once('../config.php');
 
 // Initialize variables for error messages
 $errors = [];
+$attempts_left = 5 - $_SESSION['login_attempts'];
 
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -65,6 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Increment login attempts
             $_SESSION['login_attempts'] += 1;
             $_SESSION['last_login_attempt'] = time();
+            $attempts_left = 5 - $_SESSION['login_attempts'];
         }
     }
 }
@@ -107,6 +109,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         color: red;
         margin-bottom: 10px;
     }
+    .warning-message {
+        color: orange;
+        margin-bottom: 10px;
+    }
   </style>
   <div class="h-100 d-flex align-items-center w-100" id="login">
     <div class="col-7 h-100 d-flex align-items-center justify-content-center">
@@ -132,13 +138,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                   }
                   echo '</div>';
               }
+
+              // Display warning if the user has only 3 attempts left
+              if ($attempts_left <= 3 && $attempts_left > 0) {
+                  echo '<div class="warning-message">';
+                  echo "You have $attempts_left attempts left.";
+                  echo '</div>';
+              }
+
+              // If the user has exhausted their attempts
+              if ($_SESSION['login_attempts'] >= 5 && (time() - $_SESSION['last_login_attempt']) < 900) {
+                  $remaining_time = 900 - (time() - $_SESSION['last_login_attempt']);
+                  echo '<div class="error-message">';
+                  echo 'Too many login attempts. Please wait <span id="countdown"></span> minutes to try again.';
+                  echo '</div>';
+              }
               ?>
               <form id="login-frm" action="" method="post" autocomplete="off">
                 <!-- CSRF Token -->
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8'); ?>">
                 
-                <div class="input-group mb=3">
-                  <input type="text" class="form-control" autofocus name="username" placeholder="Username" required>
+                <div class="input-group mb-3">
+                  <input type="text" class="form-control" id="username" name="username" placeholder="Username" required <?php if ($_SESSION['login_attempts'] >= 5 && (time() - $_SESSION['last_login_attempt']) < 900) echo 'disabled'; ?>>
                   <div class="input-group-append">
                     <div class="input-group-text">
                       <span class="fas fa-user"></span>
@@ -146,7 +167,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                   </div>
                 </div>
                 <div class="input-group mb-3">
-                  <input type="password" class="form-control" name="password" placeholder="Password" required>
+                  <input type="password" class="form-control" id="password" name="password" placeholder="Password" required <?php if ($_SESSION['login_attempts'] >= 5 && (time() - $_SESSION['last_login_attempt']) < 900) echo 'disabled'; ?>>
                   <div class="input-group-append">
                     <div class="input-group-text">
                       <span class="fas fa-lock"></span>
@@ -159,7 +180,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                   </div>
                   <!-- /.col -->
                   <div class="col-4">
-                    <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+                    <button type="submit" class="btn btn-primary btn-block" id="submit-btn" <?php if ($_SESSION['login_attempts'] >= 5 && (time() - $_SESSION['last_login_attempt']) < 900) echo 'disabled'; ?>>Sign In</button>
                   </div>
                   <!-- /.col -->
                 </div>
@@ -181,6 +202,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <script>
   $(document).ready(function(){
     end_loader();
+
+    <?php if ($_SESSION['login_attempts'] >= 5 && (time() - $_SESSION['last_login_attempt']) < 900): ?>
+        var timeLeft = <?php echo $remaining_time; ?>;
+        var countdownElement = document.getElementById('countdown');
+
+        var countdownTimer = setInterval(function(){
+            var minutes = Math.floor(timeLeft / 60);
+            var seconds = timeLeft % 60;
+            countdownElement.textContent = minutes + "m " + (seconds < 10 ? '0' : '') + seconds + "s";
+
+            if (timeLeft <= 0) {
+                clearInterval(countdownTimer);
+                location.reload();
+            }
+
+            timeLeft--;
+        }, 1000);
+    <?php endif; ?>
   })
 </script>
 </body>
