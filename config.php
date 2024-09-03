@@ -2,13 +2,14 @@
 ob_start();
 ini_set('date.timezone','Asia/Manila');
 date_default_timezone_set('Asia/Manila');
-session_start();
+
 
 // Set secure session parameters
 ini_set('session.cookie_httponly', 1); // Prevent JavaScript access to session cookies
 ini_set('session.cookie_secure', isset($_SERVER['HTTPS'])); // Ensure cookies are sent over HTTPS
 ini_set('session.use_strict_mode', 1); // Use strict session mode
 
+session_start();
 require_once('initialize.php');
 require_once('classes/DBConnection.php');
 require_once('classes/SystemSettings.php');
