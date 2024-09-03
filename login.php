@@ -19,6 +19,15 @@
    height: 100%;
    width: 100%;
     }
+    body::before{
+        background-color: rgba(0,0,0,0.3);
+        content: "";
+        position: absolute;
+        top: 0;
+        right: 0;   
+        bottom: 0;
+        left: 0;
+    }
     .login-title{
       text-shadow: 3px 3px black;
       padding: 20px 0 0 0;
@@ -48,10 +57,18 @@
      }
      .myLoginForm {
   background: transparent;
-  border: 2px solid #fff;
+  border: 2px solid #f83600;
   backdrop-filter: blur(4px);
   border-radius: 20px 0 0 20px;
 }
+
+.btnLogin{
+  border-radius: 0 20px 20px 0;
+  border: 0;
+  background-image: linear-gradient(to right, #f83600 50%, #f9d423 150%);
+
+}
+
 
 /* Extra small devices (portrait phones, less than 576px) */
 @media (max-width: 575.98px) {
@@ -69,6 +86,10 @@
         width: 100%;
         margin: 0;
     }
+
+    .myLoginForm {
+  border-radius: 20px 20px 0 0;
+   }
 }
 
 /* Small devices (landscape phones, less than 768px) */
@@ -166,7 +187,7 @@
                           </div>                    
                            <div class="col-6">  
                              <div class="form-group text-right">
-                          <button class="btn btn-default bg-black btn-flat"> Login</button>
+                          <button class="btnLogin btn btn-primary btn-flat text-white"> Login</button>
                           </div>
                        </div>
                      </div>

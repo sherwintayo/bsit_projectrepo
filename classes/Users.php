@@ -13,45 +13,59 @@ Class Users extends DBConnection {
 	public function save_users(){
 		if(!isset($_POST['status']) && $this->settings->userdata('login_type') == 1){
 			$_POST['status'] = 1;
-			$_POST['type'] = 2;
+			$_POST['type'] = 1;
 		}
 		extract($_POST);
 		$oid = $id;
 		$data = '';
+	
+		// Get the current type from the database if an ID is provided
+		if(isset($id) && $id > 0){
+			$current_user = $this->conn->query("SELECT `type` FROM `users` WHERE `id` = '{$id}'");
+			if($current_user->num_rows > 0){
+				$current_type = $current_user->fetch_assoc()['type'];
+			}
+		}
+	
 		if(isset($oldpassword)){
 			if(md5($oldpassword) != $this->settings->userdata('password')){
 				return 4;
 			}
 		}
-		$chk = $this->conn->query("SELECT * FROM `users` where username ='{$username}' ".($id>0? " and id!= '{$id}' " : ""))->num_rows;
+		$chk = $this->conn->query("SELECT * FROM `users` WHERE username ='{$username}' ".($id>0? " AND id!= '{$id}' " : ""))->num_rows;
 		if($chk > 0){
 			return 3;
 			exit;
 		}
+	
 		foreach($_POST as $k => $v){
-			if(in_array($k,array('firstname','middlename','lastname','username','type'))){
+			if(in_array($k, array('firstname','middlename','lastname','username','type'))){
+				// Only update the type if it was changed in the form
+				if($k == 'type' && isset($current_type) && $current_type == $v){
+					continue; // Skip updating the type if it hasn't changed
+				}
 				if(!empty($data)) $data .=" , ";
 				$data .= " {$k} = '{$v}' ";
 			}
 		}
+	
 		if(!empty($password)){
 			$password = md5($password);
 			if(!empty($data)) $data .=" , ";
 			$data .= " `password` = '{$password}' ";
 		}
-
+	
 		if(empty($id)){
-			$qry = $this->conn->query("INSERT INTO users set {$data}");
+			$qry = $this->conn->query("INSERT INTO users SET {$data}");
 			if($qry){
 				$id = $this->conn->insert_id;
 				$this->settings->set_flashdata('success','User Details successfully saved.');
 				$resp['status'] = 1;
-			}else{
+			} else {
 				$resp['status'] = 2;
 			}
-
-		}else{
-			$qry = $this->conn->query("UPDATE users set $data where id = {$id}");
+		} else {
+			$qry = $this->conn->query("UPDATE users SET $data WHERE id = {$id}");
 			if($qry){
 				$this->settings->set_flashdata('success','User Details successfully updated.');
 				if($id == $this->settings->userdata('id')){
@@ -61,15 +75,13 @@ Class Users extends DBConnection {
 							$this->settings->set_userdata($k,$v);
 						}
 					}
-					
 				}
 				$resp['status'] = 1;
-			}else{
+			} else {
 				$resp['status'] = 2;
 			}
-			
 		}
-		
+	
 		if(isset($_FILES['img']) && $_FILES['img']['tmp_name'] != ''){
 			$fname = 'uploads/avatar-'.$id.'.png';
 			$dir_path =base_app. $fname;
@@ -78,10 +90,10 @@ Class Users extends DBConnection {
 			$allowed = array('image/png','image/jpeg');
 			if(!in_array($type,$allowed)){
 				$resp['msg'].=" But Image failed to upload due to invalid file type.";
-			}else{
+			} else {
 				$new_height = 200; 
 				$new_width = 200; 
-		
+	
 				list($width, $height) = getimagesize($upload);
 				$t_image = imagecreatetruecolor($new_width, $new_height);
 				imagealphablending( $t_image, false );
@@ -89,26 +101,29 @@ Class Users extends DBConnection {
 				$gdImg = ($type == 'image/png')? imagecreatefrompng($upload) : imagecreatefromjpeg($upload);
 				imagecopyresampled($t_image, $gdImg, 0, 0, 0, 0, $new_width, $new_height, $width, $height);
 				if($gdImg){
-						if(is_file($dir_path))
+					if(is_file($dir_path))
 						unlink($dir_path);
-						$uploaded_img = imagepng($t_image,$dir_path);
-						imagedestroy($gdImg);
-						imagedestroy($t_image);
-				}else{
-				$resp['msg'].=" But Image failed to upload due to unkown reason.";
+					$uploaded_img = imagepng($t_image,$dir_path);
+					imagedestroy($gdImg);
+					imagedestroy($t_image);
+				} else {
+					$resp['msg'].=" But Image failed to upload due to unknown reason.";
 				}
 			}
 			if(isset($uploaded_img)){
-				$this->conn->query("UPDATE users set `avatar` = CONCAT('{$fname}','?v=',unix_timestamp(CURRENT_TIMESTAMP)) where id = '{$id}' ");
+				$this->conn->query("UPDATE users SET `avatar` = CONCAT('{$fname}','?v=',unix_timestamp(CURRENT_TIMESTAMP)) WHERE id = '{$id}' ");
 				if($id == $this->settings->userdata('id')){
-						$this->settings->set_userdata('avatar',$fname);
+					$this->settings->set_userdata('avatar',$fname);
 				}
 			}
 		}
+	
 		if(isset($resp['msg']))
-		$this->settings->set_flashdata('success',$resp['msg']);
-		return  $resp['status'];
+			$this->settings->set_flashdata('success',$resp['msg']);
+		return $resp['status'];
 	}
+
+
 	public function delete_users(){
 		extract($_POST);
 		$avatar = $this->conn->query("SELECT avatar FROM users where id = '{$id}'")->fetch_array()['avatar'];
