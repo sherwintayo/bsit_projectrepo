@@ -118,7 +118,7 @@
     $('#login-frm').on('submit', function(e) {
       e.preventDefault();
       $.ajax({
-        url: 'login_process.php',
+        url: _base_url_+'admin/login_process.php',
         type: 'POST',
         data: $(this).serialize(),
         dataType: 'json',
