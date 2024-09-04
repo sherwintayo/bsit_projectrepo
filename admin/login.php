@@ -1,14 +1,51 @@
 <?php require_once('../config.php') ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="" style="height: auto;">
 <?php require_once('inc/header.php') ?>
 <body class="hold-transition">
   <script>
     start_loader();
   </script>
   <style>
-    /* Your existing styles */
+    html, body {
+      height: calc(100%) !important;
+      width: calc(100%) !important;
+    }
+    body {
+      background-image: url("<?php echo validate_image($_settings->info('cover')) ?>");
+      background-size: cover;
+      background-repeat: no-repeat;
+    }
+    .login-title {
+      text-shadow: 2px 2px black;
+    }
+    #login {
+      flex-direction: column !important;
+    }
+    #logo-img {
+      height: 70px;
+      width: 70px;
+      object-fit: scale-down;
+      object-position: center center;
+      border-radius: 50%;
+    }
+    #login .col-7, #login .col-5 {
+      width: 100% !important;
+      max-width: unset !important;
+    }
+    .message {
+      color: red;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 15px;
+    }
+    .countdown {
+      color: red;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 15px;
+    }
     #login-message {
       color: red;
       font-weight: bold;
