@@ -34,6 +34,11 @@
       width: 100% !important;
       max-width: unset !important;
     }
+    .attempt-message {
+      color: red;
+      text-align: center;
+      margin-bottom: 20px;
+    }
   </style>
   <div class="h-100 d-flex align-items-center w-100" id="login">
     <div class="col-7 h-100 d-flex align-items-center justify-content-center">
@@ -49,33 +54,64 @@
               <h4 class="text-white text-center"><b>Login</b></h4>
             </div>
             <div class="card-body">
-              <form id="login-frm" action="login_process.php" method="post">
-                <input type="hidden" name="csrf_token" value="<?php echo generate_csrf_token(); ?>">
-                <div class="input-group mb-3">
-                  <input type="text" class="form-control" autofocus name="username" placeholder="Username">
-                  <div class="input-group-append">
-                    <div class="input-group-text">
-                      <span class="fas fa-user"></span>
+              <?php if (isset($_SESSION['attempts']) && $_SESSION['attempts'] >= 4 && $_SESSION['attempts'] < 7): ?>
+                <p class="attempt-message">You have <?php echo 7 - $_SESSION['attempts']; ?> attempt(s) left to login.</p>
+              <?php endif; ?>
+
+              <?php if (isset($_SESSION['locked']) && $_SESSION['locked'] > time()): ?>
+                <p class="attempt-message">
+                  Too many login attempts. Please try again in <span id="countdown"></span> minutes.
+                </p>
+                <script>
+                  var countdownDate = new Date(<?php echo $_SESSION['locked'] * 1000; ?>);
+                  var countdownElement = document.getElementById("countdown");
+                  var countdownInterval = setInterval(function() {
+                    var now = new Date().getTime();
+                    var distance = countdownDate - now;
+                    var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                    var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                    countdownElement.innerHTML = minutes + "m " + seconds + "s ";
+                    if (distance < 0) {
+                      clearInterval(countdownInterval);
+                      location.reload();
+                    }
+                  }, 1000);
+                </script>
+                <style>
+                  input[type="text"], input[type="password"], button[type="submit"] {
+                    pointer-events: none;
+                    opacity: 0.5;
+                  }
+                </style>
+              <?php else: ?>
+                <form id="login-frm" action="login_process.php" method="post">
+                  <input type="hidden" name="csrf_token" value="<?php echo generate_csrf_token(); ?>">
+                  <div class="input-group mb-3">
+                    <input type="text" class="form-control" autofocus name="username" placeholder="Username">
+                    <div class="input-group-append">
+                      <div class="input-group-text">
+                        <span class="fas fa-user"></span>
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div class="input-group mb-3">
-                  <input type="password" class="form-control" name="password" placeholder="Password">
-                  <div class="input-group-append">
-                    <div class="input-group-text">
-                      <span class="fas fa-lock"></span>
+                  <div class="input-group mb-3">
+                    <input type="password" class="form-control" name="password" placeholder="Password">
+                    <div class="input-group-append">
+                      <div class="input-group-text">
+                        <span class="fas fa-lock"></span>
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div class="row">
-                  <div class="col-8">
-                    <a href="<?php echo base_url ?>">Go to Website</a>
+                  <div class="row">
+                    <div class="col-8">
+                      <a href="<?php echo base_url ?>">Go to Website</a>
+                    </div>
+                    <div class="col-4">
+                      <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+                    </div>
                   </div>
-                  <div class="col-4">
-                    <button type="submit" class="btn btn-primary btn-block">Sign In</button>
-                  </div>
-                </div>
-              </form>
+                </form>
+              <?php endif; ?>
             </div>
           </div>
         </div>
