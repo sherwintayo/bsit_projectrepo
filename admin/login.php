@@ -1,50 +1,21 @@
 <?php require_once('../config.php') ?>
 
 <!DOCTYPE html>
-<html lang="en" class="" style="height: auto;">
+<html lang="en">
 <?php require_once('inc/header.php') ?>
 <body class="hold-transition">
   <script>
     start_loader();
   </script>
   <style>
-    html, body {
-      height: calc(100%) !important;
-      width: calc(100%) !important;
-    }
-    body {
-      background-image: url("<?php echo validate_image($_settings->info('cover')) ?>");
-      background-size: cover;
-      background-repeat: no-repeat;
-    }
-    .login-title {
-      text-shadow: 2px 2px black;
-    }
-    #login {
-      flex-direction: column !important;
-    }
-    #logo-img {
-      height: 70px;
-      width: 70px;
-      object-fit: scale-down;
-      object-position: center center;
-      border-radius: 50%;
-    }
-    #login .col-7, #login .col-5 {
-      width: 100% !important;
-      max-width: unset !important;
-    }
-    .message {
+    /* Your existing styles */
+    #login-message {
       color: red;
       font-weight: bold;
-      text-align: center;
-      margin-bottom: 15px;
+      margin-bottom: 10px;
     }
-    .countdown {
-      color: red;
-      font-weight: bold;
-      text-align: center;
-      margin-bottom: 15px;
+    #login input[disabled] {
+      background-color: #e9ecef;
     }
   </style>
   <div class="h-100 d-flex align-items-center w-100" id="login">
@@ -61,11 +32,11 @@
               <h4 class="text-white text-center"><b>Login</b></h4>
             </div>
             <div class="card-body">
-              <div id="message-area"></div>
+              <div id="login-message"></div>
               <form id="login-frm" action="login_process.php" method="post">
                 <input type="hidden" name="csrf_token" value="<?php echo generate_csrf_token(); ?>">
                 <div class="input-group mb-3">
-                  <input type="text" class="form-control" id="username" autofocus name="username" placeholder="Username">
+                  <input type="text" class="form-control" id="username" name="username" placeholder="Username">
                   <div class="input-group-append">
                     <div class="input-group-text">
                       <span class="fas fa-user"></span>
@@ -85,7 +56,7 @@
                     <a href="<?php echo base_url ?>">Go to Website</a>
                   </div>
                   <div class="col-4">
-                    <button type="submit" id="submit-btn" class="btn btn-primary btn-block">Sign In</button>
+                    <button type="submit" id="login-btn" class="btn btn-primary btn-block">Sign In</button>
                   </div>
                 </div>
               </form>
@@ -104,31 +75,41 @@
 <script src="dist/js/adminlte.min.js"></script>
 
 <script>
-  $(document).ready(function() {
+  $(document).ready(function(){
     end_loader();
 
-    // Handle login attempts
-    const maxAttempts = 7;
-    const lockoutTime = 5 * 60 * 1000; // 5 minutes in milliseconds
-    const attemptsLeft = <?php echo isset($_SESSION['login_attempts']) ? maxAttempts - $_SESSION['login_attempts'] : maxAttempts; ?>;
+    $('#login-frm').on('submit', function(e) {
+      e.preventDefault();
+      $.ajax({
+        url: 'login_process.php',
+        type: 'POST',
+        data: $(this).serialize(),
+        dataType: 'json',
+        success: function(response) {
+          if (response.status === 'locked') {
+            $('#login-message').text('Too many login attempts. Please wait ' + (response.time / 60) + ' minutes.');
+            $('#username, #password, #login-btn').prop('disabled', true);
+            startCountdown(response.time);
+          } else if (response.status === 'failed') {
+            $('#login-message').text('You have ' + response.attempts_left + ' attempts left to login.');
+          } else if (response.status === 'success') {
+            window.location.href = 'dashboard.php'; // Redirect to the dashboard or appropriate page
+          }
+        }
+      });
+    });
 
-    function displayMessage(message, isCountdown = false) {
-      $('#message-area').html(`<div class="message">${message}</div>`);
-      if (isCountdown) {
-        $('#username, #password, #submit-btn').prop('disabled', true);
-        setTimeout(() => {
-          $('#username, #password, #submit-btn').prop('disabled', false);
-          $('#message-area').html('');
-        }, lockoutTime);
-      } else {
-        $('#username, #password, #submit-btn').prop('disabled', false);
-      }
-    }
-
-    if (attemptsLeft <= 0) {
-      displayMessage("You are temporarily locked out. Please try again later.", true);
-    } else if (attemptsLeft <= 3) {
-      displayMessage(`You have ${attemptsLeft} attempts left to login.`);
+    function startCountdown(seconds) {
+      var countdown = seconds;
+      var interval = setInterval(function() {
+        $('#login-message').text('Too many login attempts. Please wait ' + Math.ceil(countdown / 60) + ' minutes.');
+        countdown--;
+        if (countdown <= 0) {
+          clearInterval(interval);
+          $('#login-message').text('');
+          $('#username, #password, #login-btn').prop('disabled', false);
+        }
+      }, 1000);
     }
   });
 </script>
