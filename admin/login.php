@@ -1,19 +1,11 @@
-<?php
-require_once('../config.php');
-session_start();
-
-// Check if an error message is set in the session
-$error_message = isset($_SESSION['error']) ? $_SESSION['error'] : '';
-$attempts_left = isset($_SESSION['attempts']) ? 7 - $_SESSION['attempts'] : 7;
-$locked_until = isset($_SESSION['locked']) ? $_SESSION['locked'] : 0;
-?>
+<?php require_once('../config.php') ?>
 
 <!DOCTYPE html>
 <html lang="en" class="" style="height: auto;">
 <?php require_once('inc/header.php') ?>
 <body class="hold-transition">
   <script>
-    start_loader()
+    start_loader();
   </script>
   <style>
     html, body {
@@ -42,14 +34,17 @@ $locked_until = isset($_SESSION['locked']) ? $_SESSION['locked'] : 0;
       width: 100% !important;
       max-width: unset !important;
     }
-    .attempt-message {
+    .message {
       color: red;
+      font-weight: bold;
       text-align: center;
-      margin-bottom: 20px;
+      margin-bottom: 15px;
     }
-    .form-disabled {
-      pointer-events: none;
-      opacity: 0.5;
+    .countdown {
+      color: red;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 15px;
     }
   </style>
   <div class="h-100 d-flex align-items-center w-100" id="login">
@@ -66,69 +61,34 @@ $locked_until = isset($_SESSION['locked']) ? $_SESSION['locked'] : 0;
               <h4 class="text-white text-center"><b>Login</b></h4>
             </div>
             <div class="card-body">
-              <?php if ($error_message): ?>
-                <p class="attempt-message"><?php echo $error_message; ?></p>
-              <?php endif; ?>
-
-              <?php if ($attempts_left <= 3 && $attempts_left > 0): ?>
-                <p class="attempt-message">You have <?php echo $attempts_left; ?> attempt(s) left to login.</p>
-              <?php endif; ?>
-
-              <?php if ($locked_until > time()): ?>
-                <p class="attempt-message">
-                  Too many login attempts. Please try again in <span id="countdown"></span> minutes.
-                </p>
-                <script>
-                  var countdownDate = new Date(<?php echo $locked_until * 1000; ?>);
-                  var countdownElement = document.getElementById("countdown");
-                  var countdownInterval = setInterval(function() {
-                    var now = new Date().getTime();
-                    var distance = countdownDate - now;
-                    var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                    var seconds = Math.floor((distance % (1000 * 60)) / 1000);
-                    countdownElement.innerHTML = minutes + "m " + seconds + "s ";
-                    if (distance < 0) {
-                      clearInterval(countdownInterval);
-                      location.reload();
-                    }
-                  }, 1000);
-                </script>
-                <style>
-                  .form-disabled input[type="text"], .form-disabled input[type="password"], .form-disabled button[type="submit"] {
-                    pointer-events: none;
-                    opacity: 0.5;
-                  }
-                </style>
-                <div class="form-disabled">
-              <?php else: ?>
-                <form id="login-frm" action="login_process.php" method="post">
-                  <input type="hidden" name="csrf_token" value="<?php echo generate_csrf_token(); ?>">
-                  <div class="input-group mb-3">
-                    <input type="text" class="form-control" autofocus name="username" placeholder="Username">
-                    <div class="input-group-append">
-                      <div class="input-group-text">
-                        <span class="fas fa-user"></span>
-                      </div>
+              <div id="message-area"></div>
+              <form id="login-frm" action="login_process.php" method="post">
+                <input type="hidden" name="csrf_token" value="<?php echo generate_csrf_token(); ?>">
+                <div class="input-group mb-3">
+                  <input type="text" class="form-control" id="username" autofocus name="username" placeholder="Username">
+                  <div class="input-group-append">
+                    <div class="input-group-text">
+                      <span class="fas fa-user"></span>
                     </div>
                   </div>
-                  <div class="input-group mb-3">
-                    <input type="password" class="form-control" name="password" placeholder="Password">
-                    <div class="input-group-append">
-                      <div class="input-group-text">
-                        <span class="fas fa-lock"></span>
-                      </div>
+                </div>
+                <div class="input-group mb-3">
+                  <input type="password" class="form-control" id="password" name="password" placeholder="Password">
+                  <div class="input-group-append">
+                    <div class="input-group-text">
+                      <span class="fas fa-lock"></span>
                     </div>
                   </div>
-                  <div class="row">
-                    <div class="col-8">
-                      <a href="<?php echo base_url ?>">Go to Website</a>
-                    </div>
-                    <div class="col-4">
-                      <button type="submit" class="btn btn-primary btn-block">Sign In</button>
-                    </div>
+                </div>
+                <div class="row">
+                  <div class="col-8">
+                    <a href="<?php echo base_url ?>">Go to Website</a>
                   </div>
-                </form>
-              <?php endif; ?>
+                  <div class="col-4">
+                    <button type="submit" id="submit-btn" class="btn btn-primary btn-block">Sign In</button>
+                  </div>
+                </div>
+              </form>
             </div>
           </div>
         </div>
@@ -144,9 +104,33 @@ $locked_until = isset($_SESSION['locked']) ? $_SESSION['locked'] : 0;
 <script src="dist/js/adminlte.min.js"></script>
 
 <script>
-  $(document).ready(function(){
+  $(document).ready(function() {
     end_loader();
-  })
+
+    // Handle login attempts
+    const maxAttempts = 7;
+    const lockoutTime = 5 * 60 * 1000; // 5 minutes in milliseconds
+    const attemptsLeft = <?php echo isset($_SESSION['login_attempts']) ? maxAttempts - $_SESSION['login_attempts'] : maxAttempts; ?>;
+
+    function displayMessage(message, isCountdown = false) {
+      $('#message-area').html(`<div class="message">${message}</div>`);
+      if (isCountdown) {
+        $('#username, #password, #submit-btn').prop('disabled', true);
+        setTimeout(() => {
+          $('#username, #password, #submit-btn').prop('disabled', false);
+          $('#message-area').html('');
+        }, lockoutTime);
+      } else {
+        $('#username, #password, #submit-btn').prop('disabled', false);
+      }
+    }
+
+    if (attemptsLeft <= 0) {
+      displayMessage("You are temporarily locked out. Please try again later.", true);
+    } else if (attemptsLeft <= 3) {
+      displayMessage(`You have ${attemptsLeft} attempts left to login.`);
+    }
+  });
 </script>
 </body>
 </html>
