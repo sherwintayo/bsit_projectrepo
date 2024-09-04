@@ -1,6 +1,5 @@
 <?php
 require_once('../config.php');
-
 session_start();
 
 $username = $_POST['username'];
@@ -12,7 +11,6 @@ if (!isset($_SESSION['attempts'])) {
 }
 
 if (isset($_SESSION['locked']) && $_SESSION['locked'] > time()) {
-    // If the user is locked out, prevent further login attempts
     $_SESSION['error'] = "Too many login attempts. Please try again later.";
     redirect('login.php');
     exit;
