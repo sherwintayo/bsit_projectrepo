@@ -13,6 +13,8 @@
     }
     body {
         background: linear-gradient(135deg, #141e30 20%, #243b55 100%);
+        background-size: cover;
+        background-repeat: no-repeat;
         height: 100%;
         width: 100%;
     }
@@ -128,7 +130,7 @@
                             </div>         
                             <div class="col-6">  
                                 <div class="form-group text-right">
-                                    <button type="submit" class="btnLogin btn btn-primary btn-flat text-white">Send Reset Link</button>
+                                    <button class="btnLogin btn btn-primary btn-flat text-white">Send Reset Link</button>
                                 </div>
                             </div>
                         </div>
