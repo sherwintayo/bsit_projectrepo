@@ -13,8 +13,6 @@
     }
     body {
         background: linear-gradient(135deg, #141e30 20%, #243b55 100%);
-        background-size: cover;
-        background-repeat: no-repeat;
         height: 100%;
         width: 100%;
     }
@@ -130,7 +128,7 @@
                             </div>         
                             <div class="col-6">  
                                 <div class="form-group text-right">
-                                    <button class="btnLogin btn btn-primary btn-flat text-white">Send Reset Link</button>
+                                    <button type="submit" class="btnLogin btn btn-primary btn-flat text-white">Send Reset Link</button>
                                 </div>
                             </div>
                         </div>
@@ -154,28 +152,20 @@
 <script src="dist/js/adminlte.min.js"></script>
 
 <script>
-  $(document).ready(function(){
-    end_loader();
-    $('#forgot_password_form').submit(function(e) {
-    e.preventDefault();
-    var email = $('#username').val();
-
-    $.ajax({
-        type: 'POST',
-        url: 'forgot_password_process.php',
-        data: { email: email },
-        success: function(response) {
-            var result = JSON.parse(response);
-            if (result.status === 'success') {
-                alert('Reset link sent to your email');
-            } else {
-                alert(result.msg);
-            }
-        }
-    });
-});
-
-  });
-</script>
+        $(document).ready(function() {
+            $('#forgot-password-frm').submit(function(e) {
+                e.preventDefault();
+                $.ajax({
+                    url: 'forgot_password_process.php',
+                    type: 'POST',
+                    data: $(this).serialize(),
+                    dataType: 'json',
+                    success: function(response) {
+                        $('#response-message').html(response.message);
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>

@@ -1,62 +1,43 @@
 <?php
-// Include config and necessary libraries
-require_once '../config.php';
-require_once '../vendor/phpmailer/src/PHPMailer.php';
-require_once '../vendor/phpmailer/src/SMTP.php';
-require_once '../vendor/phpmailer/src/Exception.php';
+require_once('../config.php');
+require 'send_password_reset.php';  // Include the send password reset function
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $email = $_POST['email'];
+$email = $_POST['email'] ?? '';
 
-    // Check if the email exists
-    $sql = "SELECT * FROM users WHERE username = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("s", $email);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $user = $result->fetch_assoc();
+if (empty($email)) {
+    echo json_encode(['message' => 'Please provide an email address.']);
+    exit;
+}
 
-    if ($user) {
-        // Generate reset token and expiry
-        $token = bin2hex(random_bytes(16));
-        $token_hash = hash("sha256", $token);
-        $expiry = date("Y-m-d H:i:s", time() + 60 * 30); // 30-minute expiry
+$query = $conn->prepare("SELECT * FROM users WHERE username = ?");
+$query->bind_param("s", $email);
+$query->execute();
+$result = $query->get_result();
 
-        // Update user record with the token and expiry
-        $sql = "UPDATE users SET reset_token_hash = ?, reset_token_expires_at = ? WHERE username = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("sss", $token_hash, $expiry, $email);
-        $stmt->execute();
+if ($result->num_rows === 0) {
+    echo json_encode(['message' => 'Email not found.']);
+    exit;
+}
 
-        if ($stmt->affected_rows > 0) {
-            // Send reset email
-            $reset_link = base_url . "reset_password.php?token=$token";
-            
-            $mail = new PHPMailer\PHPMailer\PHPMailer();
-            try {
-                $mail->isSMTP();
-                $mail->Host = 'smtp.gmail.com'; // Your SMTP host
-                $mail->SMTPAuth = true;
-                $mail->Username = 'your-email@gmail.com'; // Your email
-                $mail->Password = 'your-password'; // Your email password
-                $mail->SMTPSecure = 'tls';
-                $mail->Port = 587;
+$user = $result->fetch_assoc();
+$reset_token = bin2hex(random_bytes(32));
+$reset_token_hash = hash('sha256', $reset_token);
+$expires_at = date('Y-m-d H:i:s', strtotime('+30 minutes'));
 
-                $mail->setFrom('noreply@mccbsitrepositories.com', 'MCC IT Repository');
-                $mail->addAddress($email);
+// Update user with reset token
+$update_query = $conn->prepare("UPDATE users SET reset_token_hash = ?, reset_token_expires_at = ? WHERE id = ?");
+$update_query->bind_param('ssi', $reset_token_hash, $expires_at, $user['id']);
+$update_query->execute();
 
-                $mail->isHTML(true);
-                $mail->Subject = 'Password Reset';
-                $mail->Body = "Click <a href='$reset_link'>here</a> to reset your password. The link will expire in 30 minutes.";
+// Generate reset link
+$reset_link = base_url . "admin/reset_password.php?token=" . $reset_token . "&email=" . urlencode($email);
 
-                $mail->send();
-                echo json_encode(['status' => 'success', 'msg' => 'Reset link sent to your email']);
-            } catch (Exception $e) {
-                echo json_encode(['status' => 'error', 'msg' => 'Email could not be sent.']);
-            }
-        }
-    } else {
-        echo json_encode(['status' => 'error', 'msg' => 'Email not found']);
-    }
+// Send reset email using the function from send_password_reset.php
+$mail_result = send_password_reset($email, $reset_link);
+
+if ($mail_result === true) {
+    echo json_encode(['message' => 'Reset link has been sent to your email.']);
+} else {
+    echo json_encode(['message' => $mail_result]);
 }
 ?>

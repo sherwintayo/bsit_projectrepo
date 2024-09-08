@@ -1,21 +1,34 @@
 <?php
 require_once '../config.php';
 
-$token = $_GET['token'] ?? null;
+$token = $_GET['token'] ?? '';
+$email = $_GET['email'] ?? '';
 
-if ($token) {
-    $token_hash = hash('sha256', $token);
+if (empty($token) || empty($email)) {
+    echo "Invalid token or email.";
+    exit;
+}
 
-    $sql = "SELECT * FROM users WHERE reset_token_hash = ? AND reset_token_expires_at > NOW()";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("s", $token_hash);
-    $stmt->execute();
-    $user = $stmt->get_result()->fetch_assoc();
+// Check if token is valid
+$query = $conn->prepare("SELECT * FROM users WHERE username = ? AND reset_token_hash = ? AND reset_token_expires_at > NOW()");
+$token_hash = hash('sha256', $token);
+$query->bind_param('ss', $email, $token_hash);
+$query->execute();
+$result = $query->get_result();
 
-    if ($user) {
-        // Token is valid, show the reset password form
-        $form_action = "process_reset_password.php"; // Form action
-        ?>
+if ($result->num_rows === 0) {
+    echo "Invalid or expired reset link.";
+    exit;
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $new_password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+    $update_query = $conn->prepare("UPDATE users SET password = ?, reset_token_hash = NULL, reset_token_expires_at = NULL WHERE username = ?");
+    $update_query->bind_param('ss', $new_password, $email);
+    $update_query->execute();
+    echo "Password reset successful. You can now <a href='login.php'>login</a>.";
+}
+?>
         <!DOCTYPE html>
         <html lang="en" class="" style="height: auto;">
         <!-- <?php require_once('inc/header.php') ?> -->
@@ -84,8 +97,7 @@ if ($token) {
                             <div class="d-flex flex-column w-100 px-3">
                                 <h1 class="text-center font-weight-bold text-white">Reset Your Password</h1>
                                 <hr class="my-3" />
-                                <form action="<?php echo $form_action; ?>" method="POST" id="reset-password-form">
-                                    <input type="hidden" name="token" value="<?php echo htmlspecialchars($token); ?>" />
+                                <form action="" method="POST" >
                                     <div class="row">
                                         <div class="col-lg-12">
                                             <div class="input-group form-group">
@@ -132,13 +144,4 @@ if ($token) {
             </script>
         </body>
         </html>
-        <?php
-    } else {
-        echo "<script>alert('Invalid or expired token.'); window.location.href='forgot_password.php';</script>";
-        exit();
-    }
-} else {
-    echo "<script>alert('No token provided.'); window.location.href='forgot_password.php';</script>";
-    exit();
-}
-?>
+

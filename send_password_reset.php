@@ -10,7 +10,7 @@ $token_hash = hash("sha256", $token);
 $expiry = date("Y-m-d H:i:s", time() + 60 * 30); // Token expires in 30 minutes
 
 // Update the user's reset token hash and expiry in the database
-$sql = "UPDATE user
+$sql = "UPDATE student_list
         SET reset_token_hash = ?,
             reset_token_expires_at = ?
         WHERE email = ?";
@@ -22,7 +22,7 @@ $stmt->execute();
 if ($conn->affected_rows) {
 
     // Include the mailer and get the initialized mail object
-    $mail = require __DIR__ . "/mailer.php";
+    $mail = base_url . "/mailer.php";
 
     // Set mail properties
     $mail->setFrom("noreply@example.com", "Your App Name"); // Update this as needed
