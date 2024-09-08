@@ -11,23 +11,30 @@
       height:calc(100%) !important;
       width:calc(100%) !important;
     }
-    body{
+    body {
+        background: linear-gradient(135deg, #141e30 20%, #243b55 100%);
+        background-size: cover;
+        background-repeat: no-repeat;
+        height: 100%;
+        width: 100%;
+        }
+    /* body{
       background-image: url("<?php echo validate_image($_settings->info('cover')) ?>");
       background-size:cover;
       background-repeat:no-repeat;
       background-position:center center;
    height: 100%;
    width: 100%;
-    }
-    body::before{
-        background-color: rgba(0,0,0,0.3);
+    } */
+    /* body::before{
+        background-color: rgba(0,0,0,0.1);
         content: "";
         position: absolute;
         top: 0;
         right: 0;   
         bottom: 0;
         left: 0;
-    }
+    } */
     .login-title{
       text-shadow: 3px 3px black;
       padding: 20px 0 0 0;
@@ -58,7 +65,7 @@
      .myLoginForm {
   background: transparent;
   border: 2px solid #f83600;
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(2px);
   border-radius: 20px 0 0 20px;
 }
 
@@ -163,13 +170,13 @@
                     <form action="" id="slogin-form">
                      <div class="row">
                       <div class="col-lg-12">
-                     <div class="input-group form-group">
-                     <div class="input-group-prepend">
-                        <span class="input-group-text rounded-0"><i class="far fa-envelope fa-lg fa-fw"></i></span>
-                      </div>
-                          <input type="email" name="email" id="email" placeholder="Email" class="form-control form-control-border" required>
-                       </div>
-                      </div>
+                        <div class="input-group form-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text rounded-0"><i class="far fa-envelope fa-lg fa-fw"></i></span>
+                                </div>
+                                    <input type="email" name="email" id="email" placeholder="Email" class="form-control form-control-border" required>
+                                </div>
+                            </div>
                       </div>
                   <div class="row">
                    <div class="col-lg-12">
@@ -182,14 +189,20 @@
                           </div>
                      </div>
                      <div class="row">  
-                           <div class="col-6">            
-                             <button><a href="<?php echo base_url ?>">Go Back</a></button>   
-                          </div>                    
+                     <div class="col-6">
+                            <a class="text-light font-weight-bolder" href="<?php echo base_url ?>">Go Back</a>
+                            </div>         
                            <div class="col-6">  
                              <div class="form-group text-right">
-                          <button class="btnLogin btn btn-primary btn-flat text-white"> Login</button>
-                          </div>
+                                <button class="btnLogin btn btn-primary btn-flat text-white"> Login</button>
+                             </div>
                        </div>
+                       <div class="row mt-2">
+                            <div class="col-lg-12 text-center">
+                                <a href="forgot_password.php" class="text-light">Forgot Password?</a>
+                            </div>
+                        </div>
+
                      </div>
                   </form>
                  </div>

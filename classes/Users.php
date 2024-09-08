@@ -1,5 +1,12 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 require_once('../config.php');
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 Class Users extends DBConnection {
 	private $settings;
 	public function __construct(){
@@ -139,6 +146,80 @@ Class Users extends DBConnection {
 		}
 		return json_encode($resp);
 	}
+
+	public function forgot_password_users() {
+        if (!isset($_POST['email'])) {
+            return json_encode(['status' => 'failed', 'msg' => 'Email is required']);
+        }
+
+        $email = trim($_POST['email']);
+
+        // Prepare the SQL statement to prevent SQL injection
+        $stmt = $this->conn->prepare("SELECT * FROM users WHERE username = ?");
+        if (!$stmt) {
+            return json_encode(['status' => 'failed', 'msg' => 'Database error: ' . $this->conn->error]);
+        }
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $qry = $stmt->get_result();
+
+        if ($qry->num_rows > 0) {
+            // Generate a token
+            try {
+                $token = bin2hex(random_bytes(50));
+            } catch (Exception $e) {
+                return json_encode(['status' => 'failed', 'msg' => 'Token generation failed']);
+            }
+            $exp_time = date('Y-m-d H:i:s', strtotime('+1 hour'));
+
+            // Prepare the update statement
+            $update_stmt = $this->conn->prepare("UPDATE users SET reset_token = ?, token_expiry = ? WHERE username = ?");
+            if (!$update_stmt) {
+                return json_encode(['status' => 'failed', 'msg' => 'Database error: ' . $this->conn->error]);
+            }
+            $update_stmt->bind_param("sss", $token, $exp_time, $email);
+            $update_stmt->execute();
+
+            if ($update_stmt->error) {
+                return json_encode(['status' => 'failed', 'msg' => 'Error saving token: ' . $update_stmt->error]);
+            }
+
+            // Send email with PHPMailer
+            $reset_link = base_url . "admin/reset_password.php?token=" . $token;
+            require '../vendor/autoload.php'; // Adjust path based on your project
+
+            $mail = new PHPMailer(true); // Enable exceptions
+
+            try {
+                // Server settings
+                $mail->isSMTP();
+                $mail->Host       = 'smtp.gmail.com'; // Gmail SMTP server
+                $mail->SMTPAuth   = true;
+                $mail->Username   = 'your-email@gmail.com'; // Your Gmail address
+                $mail->Password   = 'your-app-password'; // Your Gmail App Password
+                $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+                $mail->Port       = 587;
+
+                // Recipients
+                $mail->setFrom('your-email@gmail.com', 'MCC Repositories');
+                $mail->addAddress($email);
+
+                // Content
+                $mail->isHTML(true);
+                $mail->Subject = 'Password Reset Request';
+                $mail->Body    = "Click <a href='$reset_link'>here</a> to reset your password. This link is valid for 1 hour.";
+
+                $mail->send();
+                return json_encode(['status' => 'success']);
+            } catch (Exception $e) {
+                return json_encode(['status' => 'failed', 'msg' => 'Mailer Error: ' . $mail->ErrorInfo]);
+            }
+        } else {
+            return json_encode(['status' => 'failed', 'msg' => 'Email not found']);
+        }
+    }
+
+
 	public function save_student(){
 		extract($_POST);
 		$data = '';
@@ -282,6 +363,9 @@ switch ($action) {
 	case 'verify_student':
 		echo $users->verify_student();
 	break;
+	case 'forgot_password_users': // Added case
+        echo $users->forgot_password_users();
+    break;
 	default:
 		// echo $sysset->index();
 		break;
