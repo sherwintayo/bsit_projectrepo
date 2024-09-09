@@ -135,6 +135,7 @@
                             </div>
                         </div>
                     </form>
+
                 </div>
             </div>
             <div class="col-lg-5 d-flex flex-column justify-content-center myColor p-4">
@@ -154,23 +155,34 @@
 <script src="dist/js/adminlte.min.js"></script>
 
 <script>
- $(document).ready(function() {
-    end_loader();
+$(document).ready(function() {
+    // Ensure jQuery is working
+    console.log("jQuery is working!");
+
     $('#forgot-password-form').submit(function(e) {
-        e.preventDefault();
+        e.preventDefault(); // Prevent the form from submitting the default way
+
         var email = $('#username').val();
+        console.log("Submitting email:", email); // Check if the email is grabbed correctly
 
         $.ajax({
             type: 'POST',
             url: 'forgot_password_process.php',
             data: { email: email },
             success: function(response) {
-                var result = JSON.parse(response);
-                if (result.status === 'success') {
-                    alert('Reset link sent to your email');
-                } else {
-                    alert(result.msg);
+                try {
+                    var result = JSON.parse(response); // Try parsing the JSON response
+                    if (result.status === 'success') {
+                        alert('Reset link sent to your email');
+                    } else {
+                        alert(result.msg);
+                    }
+                } catch (e) {
+                    console.error("Invalid JSON response:", response); // Log any issues with the response
                 }
+            },
+            error: function(xhr, status, error) {
+                console.error("AJAX Error:", error); // Log any AJAX request errors
             }
         });
     });
