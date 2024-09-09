@@ -3,7 +3,7 @@
         'name' => 'ciervo/bsit_repo',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => 'd3cb2b4766e99e67ed8abeca05b80ac16c13739f',
+        'reference' => '650ca79e04e189b4f34f061eceeef92dcba7231d',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -13,7 +13,7 @@
         'ciervo/bsit_repo' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => 'd3cb2b4766e99e67ed8abeca05b80ac16c13739f',
+            'reference' => '650ca79e04e189b4f34f061eceeef92dcba7231d',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
