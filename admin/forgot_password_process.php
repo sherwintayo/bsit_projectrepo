@@ -1,6 +1,6 @@
 <?php
-require_once('config.php');
-require_once 'vendor/autoload.php';
+require_once('../config.php');
+require_once '../vendor/autoload.php';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = htmlspecialchars(trim($_POST['email']));
@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 
 function send_reset_email($email, $reset_link) {
-    $mail = new PHPMailer;
+    $mail = new PHPMailer\PHPMailer\PHPMailer();
     $mail->isSMTP();
     $mail->Host = 'smtp.your-email-server.com'; // Set the SMTP server to send through
     $mail->SMTPAuth = true;
@@ -43,7 +43,7 @@ function send_reset_email($email, $reset_link) {
     $mail->SMTPSecure = 'tls'; 
     $mail->Port = 587; 
 
-    $mail->setFrom('your-email@example.com', 'MCC Repositories');
+    $mail->setFrom('your-email@example.com', 'Your Site Name');
     $mail->addAddress($email);
 
     $mail->isHTML(true);
@@ -51,7 +51,7 @@ function send_reset_email($email, $reset_link) {
     $mail->Body = "Click the link below to reset your password:<br><a href='$reset_link'>$reset_link</a>";
 
     if (!$mail->send()) {
-        echo 'Message could not be sent. Mailer Error: ', $mail->ErrorInfo;
+        echo 'Message could not be sent. Mailer Error: ' . $mail->ErrorInfo;
     } else {
         echo 'Password reset link sent!';
     }
