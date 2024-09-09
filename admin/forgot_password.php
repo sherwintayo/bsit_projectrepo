@@ -154,28 +154,28 @@
 <script src="dist/js/adminlte.min.js"></script>
 
 <script>
-  $(document).ready(function(){
+ $(document).ready(function() {
     end_loader();
-    $('#forgot_password_form').submit(function(e) {
-    e.preventDefault();
-    var email = $('#username').val();
+    $('#forgot-password-form').submit(function(e) {
+        e.preventDefault();
+        var email = $('#username').val();
 
-    $.ajax({
-        type: 'POST',
-        url: 'forgot_password_process.php',
-        data: { email: email },
-        success: function(response) {
-            var result = JSON.parse(response);
-            if (result.status === 'success') {
-                alert('Reset link sent to your email');
-            } else {
-                alert(result.msg);
+        $.ajax({
+            type: 'POST',
+            url: 'forgot_password_process.php',
+            data: { email: email },
+            success: function(response) {
+                var result = JSON.parse(response);
+                if (result.status === 'success') {
+                    alert('Reset link sent to your email');
+                } else {
+                    alert(result.msg);
+                }
             }
-        }
+        });
     });
 });
 
-  });
 </script>
 </body>
 </html>

@@ -27,9 +27,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $reset_link = base_url . "reset_password.php?token=$reset_token";
         send_reset_email($user['username'], $reset_link);
 
-        echo "A password reset link has been sent to your email.";
+        echo json_encode(['status' => 'success', 'msg' => 'A password reset link has been sent to your email.']);
     } else {
-        echo "No account associated with this email.";
+        echo json_encode(['status' => 'error', 'msg' => 'No account associated with this email.']);
     }
 }
 
@@ -51,9 +51,9 @@ function send_reset_email($email, $reset_link) {
     $mail->Body = "Click the link below to reset your password:<br><a href='$reset_link'>$reset_link</a>";
 
     if (!$mail->send()) {
-        echo 'Message could not be sent. Mailer Error: ' . $mail->ErrorInfo;
+        return ['status' => 'error', 'msg' => 'Message could not be sent. Mailer Error: ' . $mail->ErrorInfo];
     } else {
-        echo 'Password reset link sent!';
+        return ['status' => 'success', 'msg' => 'Password reset link sent!'];
     }
 }
 ?>
