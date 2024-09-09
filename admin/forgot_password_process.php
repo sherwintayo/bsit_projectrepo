@@ -43,7 +43,7 @@ function send_reset_email($email, $reset_link) {
     $mail->SMTPSecure = 'tls'; 
     $mail->Port = 587; 
 
-    $mail->setFrom('your-email@example.com', 'Your Site Name');
+    $mail->setFrom('your-email@example.com', 'MCC Repositories');
     $mail->addAddress($email);
 
     $mail->isHTML(true);
