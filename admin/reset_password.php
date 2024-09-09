@@ -1,32 +1,32 @@
 <?php
 require_once '../config.php';
 
-$token = $_GET['token'] ?? '';
-$email = $_GET['email'] ?? '';
+if (isset($_GET['token'])) {
+    $token = $_GET['token'];
+    $hashed_token = hash('sha256', $token);
 
-if (empty($token) || empty($email)) {
-    echo "Invalid token or email.";
-    exit;
-}
+    // Check if the token exists and is still valid
+    $stmt = $conn->prepare("SELECT * FROM users WHERE reset_token_hash = ? AND reset_token_expires_at > NOW()");
+    $stmt->bind_param("s", $hashed_token);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $user = $result->fetch_assoc();
 
-// Check if token is valid
-$query = $conn->prepare("SELECT * FROM users WHERE username = ? AND reset_token_hash = ? AND reset_token_expires_at > NOW()");
-$token_hash = hash('sha256', $token);
-$query->bind_param('ss', $email, $token_hash);
-$query->execute();
-$result = $query->get_result();
-
-if ($result->num_rows === 0) {
-    echo "Invalid or expired reset link.";
-    exit;
-}
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $new_password = password_hash($_POST['password'], PASSWORD_DEFAULT);
-    $update_query = $conn->prepare("UPDATE users SET password = ?, reset_token_hash = NULL, reset_token_expires_at = NULL WHERE username = ?");
-    $update_query->bind_param('ss', $new_password, $email);
-    $update_query->execute();
-    echo "Password reset successful. You can now <a href='login.php'>login</a>.";
+    if ($user) {
+        // Display form to reset password
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $new_password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+            $update = $conn->prepare("UPDATE users SET password = ?, reset_token_hash = NULL, reset_token_expires_at = NULL WHERE id = ?");
+            $update->bind_param("si", $new_password, $user['id']);
+            $update->execute();
+            
+            echo "Password reset successful. You can now <a href='login.php'>login</a>.";
+        }
+    } else {
+        echo "Invalid or expired token.";
+    }
+} else {
+    echo "Invalid request.";
 }
 ?>
         <!DOCTYPE html>

@@ -113,7 +113,7 @@
                 <div class="d-flex flex-column w-100 px-3">
                     <h1 class="text-center font-weight-bold text-white">Reset Password</h1>
                     <hr class="my-3" />
-                    <form action="" id="forgot-password-form">
+                    <form action="forgot_password_process.php" method="POST" id="forgot-password-form">
                         <div class="row">
                             <div class="col-lg-12">
                                 <div class="input-group form-group">
@@ -130,7 +130,7 @@
                             </div>         
                             <div class="col-6">  
                                 <div class="form-group text-right">
-                                    <button class="btnLogin btn btn-primary btn-flat text-white">Send Reset Link</button>
+                                    <button class="btnLogin btn btn-primary btn-flat text-white" type="submit">Send Reset Link</button>
                                 </div>
                             </div>
                         </div>
