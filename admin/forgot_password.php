@@ -155,39 +155,48 @@
 <script src="dist/js/adminlte.min.js"></script>
 
 <script>
-$(document).ready(function() {
-    // Ensure jQuery is working
-    console.log("jQuery is working!");
+    function start_loader() {
+      console.log("Loader started...");
+      // You can add code to show your loader animation here
+    }
 
-    $('#forgot-password-form').submit(function(e) {
+    function end_loader() {
+      console.log("Loader ended...");
+      // Hide or stop the loader animation here
+    }
+
+    $(document).ready(function() {
+      // Ensure the page is ready, then stop the loader
+      end_loader();
+
+      $('#forgot-password-form').submit(function(e) {
         e.preventDefault(); // Prevent the form from submitting the default way
 
         var email = $('#username').val();
         console.log("Submitting email:", email); // Check if the email is grabbed correctly
 
         $.ajax({
-            type: 'POST',
-            url: 'forgot_password_process.php',
-            data: { email: email },
-            success: function(response) {
-                try {
-                    var result = JSON.parse(response); // Try parsing the JSON response
-                    if (result.status === 'success') {
-                        alert('Reset link sent to your email');
-                    } else {
-                        alert(result.msg);
-                    }
-                } catch (e) {
-                    console.error("Invalid JSON response:", response); // Log any issues with the response
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error("AJAX Error:", error); // Log any AJAX request errors
+          type: 'POST',
+          url: 'forgot_password_process.php',
+          data: { email: email },
+          success: function(response) {
+            try {
+              var result = JSON.parse(response); // Try parsing the JSON response
+              if (result.status === 'success') {
+                alert('Reset link sent to your email');
+              } else {
+                alert(result.msg);
+              }
+            } catch (e) {
+              console.error("Invalid JSON response:", response); // Log any issues with the response
             }
+          },
+          error: function(xhr, status, error) {
+            console.error("AJAX Error:", error); // Log any AJAX request errors
+          }
         });
+      });
     });
-});
-
-</script>
+  </script>
 </body>
 </html>
