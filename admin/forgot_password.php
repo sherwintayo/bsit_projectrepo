@@ -155,15 +155,7 @@
 <script src="dist/js/adminlte.min.js"></script>
 
 <script>
-    function start_loader() {
-      console.log("Loader started...");
-      // You can add code to show your loader animation here
-    }
-
-    function end_loader() {
-      console.log("Loader ended...");
-      // Hide or stop the loader animation here
-    }
+   
 
     $(document).ready(function() {
       // Ensure the page is ready, then stop the loader
