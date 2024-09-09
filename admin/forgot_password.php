@@ -1,7 +1,7 @@
 <?php require_once('../config.php'); ?>
 <!DOCTYPE html>
 <html lang="en">
-<?php require_once('inc/header.php') ?>
+<!-- <?php require_once('inc/header.php') ?> -->
 <body>
 <div class="container">
     <h2>Forgot Password</h2>
