@@ -3,7 +3,8 @@
     "description": "Storing capstone project",
     "type": "project",
     "require-dev": {
-        "phpunit/phpunit": "*"
+        "myclabs/deep-copy": "^1.10",
+        "phpunit/phpunit": "*"  
     },
     "authors": [
         {
