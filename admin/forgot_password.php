@@ -153,7 +153,7 @@
 <!-- AdminLTE App -->
 <script src="dist/js/adminlte.min.js"></script>
 
-<script>
+<!-- <script>
   $(document).ready(function(){
     end_loader();
     $('#forgot_password_form').submit(function(e) {
@@ -176,6 +176,6 @@
 });
 
   });
-</script>
+</script> -->
 </body>
 </html>
