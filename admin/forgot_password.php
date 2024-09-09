@@ -1,19 +1,17 @@
+<?php require_once('../config.php'); ?>
 <!DOCTYPE html>
-<html>
-<head>
-    <title>Forgot Password</title>
-    <meta charset="UTF-8">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
-</head>
+<html lang="en">
+<?php require_once('inc/header.php') ?>
 <body>
-
-    <h1>Forgot Password</h1>
-
+<div class="container">
+    <h2>Forgot Password</h2>
     <form action="forgot_password_process.php" method="post">
-  <input type="email" name="username" placeholder="Enter your email" required>
-  <button type="submit">Reset Password</button>
-</form>
-
-
+        <div class="form-group">
+            <label for="email">Enter your email address:</label>
+            <input type="email" name="email" id="email" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Send Reset Link</button>
+    </form>
+</div>
 </body>
 </html>
