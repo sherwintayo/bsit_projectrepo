@@ -1,6 +1,6 @@
 <?php
 require_once('config.php');
-require 'PHPMailer/PHPMailerAutoload.php'; // Include PHPMailer if not autoloaded
+require_once 'vendor/autoload.php';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = htmlspecialchars(trim($_POST['email']));
