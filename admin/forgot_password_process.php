@@ -1,5 +1,5 @@
 <?php
-require_once 'vendor/autoload.php'; // Composer's autoloader
+require_once '../vendor/autoload.php'; // Composer's autoloader
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
