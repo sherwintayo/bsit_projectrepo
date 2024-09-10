@@ -128,7 +128,7 @@
               <div id="login-message"></div>
               <div class="row mt-2">
                 <div class="col-lg-12 text-center">
-                <a href="<?php echo base_url ?>admin/forgot_password.php" class="text-light">Forgot Password?</a>
+                <a href="<?php echo base_url ?>admin/test.php" class="text-light">Forgot Password?</a>
                 </div>
               </div>
             </form>
