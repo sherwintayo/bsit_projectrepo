@@ -5,7 +5,11 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 require_once('../config.php');
-require_once('../vendor/autoload.php'); 
+require_once('../vendor/autoload.php'); // Composer autoloader
+
+// Use PHPMailer with namespaces
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = $_POST['email'];
@@ -32,26 +36,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Send the reset link via PHPMailer
         $reset_link = base_url . "admin/reset_password.php?token=$token";
         
-        $mail = new PHPMailer;
-        $mail->isSMTP();
-        $mail->Host = 'smtp.example.com'; // SMTP server
-        $mail->SMTPAuth = true;
-        $mail->Username = 'your_email@example.com';
-        $mail->Password = 'your_password';
-        $mail->SMTPSecure = 'tls';
-        $mail->Port = 587;
-        
-        $mail->setFrom('your_email@example.com', 'Your App Name');
-        $mail->addAddress($email);
-        $mail->isHTML(true);
-        
-        $mail->Subject = 'Password Reset Request';
-        $mail->Body    = "Hi $username,<br><br>Click the link below to reset your password:<br><a href='$reset_link'>$reset_link</a><br><br>The link is valid for 1 hour.";
-        
-        if ($mail->send()) {
+        $mail = new PHPMailer(true); // Passing `true` enables exceptions
+
+        try {
+            // Server settings
+            $mail->isSMTP();
+            $mail->Host = 'smtp.example.com'; // SMTP server
+            $mail->SMTPAuth = true;
+            $mail->Username = 'your_email@example.com';
+            $mail->Password = 'your_password';
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS; // Enable TLS encryption
+            $mail->Port = 587;
+            
+            // Recipients
+            $mail->setFrom('your_email@example.com', 'Your App Name');
+            $mail->addAddress($email);
+            
+            // Content
+            $mail->isHTML(true);
+            $mail->Subject = 'Password Reset Request';
+            $mail->Body    = "Hi $username,<br><br>Click the link below to reset your password:<br><a href='$reset_link'>$reset_link</a><br><br>The link is valid for 1 hour.";
+            
+            // Send email
+            $mail->send();
             echo "Reset link sent to your email.";
-        } else {
-            echo "Mailer Error: " . $mail->ErrorInfo;
+        } catch (Exception $e) {
+            echo "Mailer Error: {$mail->ErrorInfo}";
         }
     } else {
         echo "Email not found.";
